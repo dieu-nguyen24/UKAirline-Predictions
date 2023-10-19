@@ -5,9 +5,16 @@ In this project, I (1) explored the data of a fictional airline in the UK to unc
 1. [Dataset Used](https://github.com/dieu-nguyen24/UKAirline-Predictions#dataset-used)
 2. [Data Pre-processing](https://github.com/dieu-nguyen24/UKAirline-Predictions#data-pre-processing)
 3. [Exploratory Data Analysis](https://github.com/dieu-nguyen24/UKAirline-Predictions#exploratory-data-analysis)
+   3.1. [Information Values](https://github.com/dieu-nguyen24/UKAirline-Predictions#information-values)
+   3.2. [Correlation Analysis](https://github.com/dieu-nguyen24/UKAirline-Predictions#correlation-analysis)
+   3.3. [Common Characteristics of Passengers](https://github.com/dieu-nguyen24/UKAirline-Predictions#common-characteristics-of-passengers)
 4. [Model Building](https://github.com/dieu-nguyen24/UKAirline-Predictions#model-building)
-5. [Performance Evaluation](https://github.com/dieu-nguyen24/UKAirline-Predictions#performance-evaluation)
-6. [References](https://github.com/dieu-nguyen24/UKAirline-Predictions#references)
+   4.1. [Logistic Regression](https://github.com/dieu-nguyen24/UKAirline-Predictions#logistic-regression)
+   4.2. [k-NN](https://github.com/dieu-nguyen24/UKAirline-Predictions#k-nn)
+   4.3. [Bagging](https://github.com/dieu-nguyen24/UKAirline-Predictions#bagging)
+   4.4. [Random Forest](https://github.com/dieu-nguyen24/UKAirline-Predictions#random-forest)
+7. [Performance Evaluation](https://github.com/dieu-nguyen24/UKAirline-Predictions#performance-evaluation)
+8. [References](https://github.com/dieu-nguyen24/UKAirline-Predictions#references)
 ## Dataset Used
 This project uses 
 ## Data Pre-Processing
@@ -23,7 +30,8 @@ On a related note, since the minimum age permitted to travel alone for some airl
 ## Model Building
 ### Logistic Regression
 ### k-NN
-### Bagging and Random Forest
+### Bagging
+### Random Forest
 ## Performance Evaluation
 ### Expected Generalisation Performance
 ### TPR and TNR Trade-off
