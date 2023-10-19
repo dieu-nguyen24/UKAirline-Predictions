@@ -2,12 +2,12 @@
 ## Objectives
 In this project, I (1) explored the data of a fictional airline in the UK to uncover insights about the potential drivers of passenger satisfaction and (2) built classification models to predict satisfaction.
 ## Table of Content
-1. [Dataset Used](https://github.com/dieu-nguyen24/UKAirline-Predictions)
-2. [Data Pre-processing](https://github.com/dieu-nguyen24/UKAirline-Predictions)
-3. [Exploratory Data Analysis](https://github.com/dieu-nguyen24/UKAirline-Predictions)
-4. [Model Building](https://github.com/dieu-nguyen24/UKAirline-Predictions)
-5. [Performance Evaluation](https://github.com/dieu-nguyen24/UKAirline-Predictions)
-6. [References](https://github.com/dieu-nguyen24/UKAirline-Predictions)
+1. [Dataset Used](https://github.com/dieu-nguyen24/UKAirline-Predictions#dataset-used)
+2. [Data Pre-processing](https://github.com/dieu-nguyen24/UKAirline-Predictions#data-pre-processing)
+3. [Exploratory Data Analysis](https://github.com/dieu-nguyen24/UKAirline-Predictions#exploratory-data-analysis)
+4. [Model Building](https://github.com/dieu-nguyen24/UKAirline-Predictions#model-building)
+5. [Performance Evaluation](https://github.com/dieu-nguyen24/UKAirline-Predictions#performance-evaluation)
+6. [References](https://github.com/dieu-nguyen24/UKAirline-Predictions#references)
 ## Dataset Used
 This project uses 
 ## Data Pre-Processing
