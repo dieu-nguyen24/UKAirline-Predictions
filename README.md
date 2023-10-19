@@ -23,9 +23,12 @@ Before further analysis, the dataset has been examined based on data quality dim
   <img src="" alt="Data Quality Dimensions"/>
 </p>
 One dimension where issues are found is Completeness. Specifically, a total of 1522 missing values are present in multiple variables (Figure 1.1). Since NAs in service evaluation variables might come from the lack of such service on the flight, these along with the NAs in ‘Arrival Delay’ are assumed to be missing at random, and thus, the observations with these values are removed from the dataset.
+
 ```
+#Snapshot of the dataset
 vis_miss(airlinesData68)
 ```
+
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/Vis_miss_raw.png" alt="Snapshot of the raw data"/>
 </p>
