@@ -22,7 +22,7 @@ Before further analysis, the dataset has been examined based on data quality dim
 <p align="center">
   <img src="" alt="Data Quality Dimensions"/>
 </p>
-One dimension where issues are found is Completeness. Specifically, a total of 1522 missing values are present in multiple variables (Figure 1.1). Since NAs in service evaluation variables might come from the lack of such service on the flight, these along with the NAs in ‘Arrival Delay’ are assumed to be missing at random, and thus, the observations with these values are removed from the dataset.
+One dimension where issues are found is Completeness. Specifically, a total of 1522 missing values are present in multiple variables (Figure 1.1).
 
 ```
 #Snapshot of the dataset
@@ -34,7 +34,7 @@ vis_miss(airlinesData68)
 </p>
 <p align="center">Figure 1.1: Snapshot of the raw data</p>
 
-On a related note, since the minimum age permitted to travel alone for some airlines is 14 (opodo.co.uk, 2019), feedback from these minors might be biased due to the possible influence of legal guardians accompanying them on the flight. Therefore, observations from passengers under 14 are also removed.
+Since NAs in service evaluation variables might come from the lack of such service on the flight, these along with the NAs in ‘Arrival Delay’ are assumed to be missing at random, and thus, the observations with these values are removed from the dataset. On a related note, since the minimum age permitted to travel alone for some airlines is 14 (opodo.co.uk, 2019), feedback from these minors might be biased due to the possible influence of legal guardians accompanying them on the flight. Therefore, observations from passengers under 14 are also removed.
 
 ## Exploratory Data Analysis
 ### Information Values
