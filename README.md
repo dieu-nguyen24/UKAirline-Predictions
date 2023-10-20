@@ -53,13 +53,20 @@ Onboard (5 - totally satisfied, 1 - totally dissatisfied)
 * Clean: (satisfaction level of cleanliness; 0:NA; 1-5)
 ## Data Cleaning & Pre-Processing
 ### Data Cleaning
+The dataset is first examined and cleaned into a more convenient format.
 ```
 #Import the dataset
 airlinesData68 <- read_csv("airlinesData68.csv")
-colnames(airlinesData68) <- make.names(colnames(airlinesData68)) #Remove spaces from column names
+#Remove spaces from column names
+colnames(airlinesData68) <- make.names(colnames(airlinesData68))
+#Move the target variable to the first column
 airlinesData68 <- airlinesData68 %>% 
-  dplyr::select(satisfaction, everything()) #Move the target variable to the first column
-colnames(airlinesData68) #Check column names
+  dplyr::select(satisfaction, everything())
+```
+Categorical variables are turned into factors. The levels of the ordinal data are assigned from lowest to highest values. Ratings of 0s are converted into NA values for consistency.
+```
+#Check column names 
+colnames(airlinesData68)
 #Turn categorical variables into factors
 #Nominal
 airlinesData68[, c("Gender", "Customer.Type", "Type.of.Travel")] <- lapply(airlinesData68[, c("Gender", "Customer.Type", "Type.of.Travel")], factor)
@@ -76,17 +83,13 @@ airlinesData68[, rating_columns] <- lapply(airlinesData68[, rating_columns], fun
 
 #Turn 0s into NAs
 airlinesData68[, rating_columns] <- lapply(airlinesData68[, rating_columns], function(x) replace(x, x==0, NA))
-
-#Check dimensions and structure of dataset
-dim(airlinesData68)
-str(airlinesData68)
-
+```
+### Data Pre-Processing
+In terms of missing values, a total of 1522 NAs are present in multiple variables (Figure 1.1).
+```
 #Check for NAs
 sum(is.na(airlinesData68))
 ```
-### Data Pre-Processing
-Before further analysis, the dataset has been examined based on data quality dimensions such as Accuracy, Completeness, and Timeliness (Berthold et al., 2010). One dimension where issues are found is Completeness. Specifically, a total of 1522 missing values are present in multiple variables (Figure 1.1).
-
 ```
 #Snapshot of the dataset
 vis_miss(airlinesData68)
