@@ -1,6 +1,6 @@
 # 🛩 UK Airline EDA and Classification Predictions
 ## Objectives
-In this project, I (1) explored the data of a fictional UK airline to uncover insights about the potential drivers of passenger satisfaction and (2) built classification models to predict satisfaction. All processes are done using R.
+In this project undertaken during the MSc Business Analytics programme at Lancaster University, I (1) explored the sample data of a fictional UK airline to uncover insights about the potential drivers of passenger satisfaction and (2) built classification models to predict satisfaction. All processes are done using R.
 ## Table of Content
 1. [Dataset Used](https://github.com/dieu-nguyen24/UKAirline-Predictions#dataset-used)
 2. [Data Pre-processing](https://github.com/dieu-nguyen24/UKAirline-Predictions#data-pre-processing)
@@ -16,7 +16,41 @@ In this project, I (1) explored the data of a fictional UK airline to uncover in
 5. [Performance Evaluation](https://github.com/dieu-nguyen24/UKAirline-Predictions#performance-evaluation)
 6. [References](https://github.com/dieu-nguyen24/UKAirline-Predictions#references)
 ## Dataset Used
-This project uses 
+This project uses the sample of data provided by Lancaster University as part of the MSCI562 course. The dataset is of dimension 10313x23.
+
+Details of the dataset:
+
+Target variable
+* Satisfaction: airline satisfaction level ("neutral or dissatisfied" and "satisfied")
+
+Personal details
+* Gender: (female; male)
+* Typecustomer: (loyal customer; disloyal customer)
+* Age: (age of each customer)
+* Traveltype: (types of journeys - business travel; personal travel)
+* Class: (ticket class - business; economy; eco plus)
+
+Flight details
+* Flightdistance: (flight distance of the journey in miles)
+* Departdelay: (minutes of delay when departing)
+* Arrivedelay: (minutes of delay when arriving)
+
+Pre-boarding (5 - totally satisfied, 1 - totally dissatisfied)
+* Easeofonlinebooking: (satisfaction level of online booking; 0:NA; 1-5)
+* Timeconvenient: (satisfaction level of departure/arrival time convenience; 0:NA; 1-5)
+* Gatelocation: (satisfaction level of gate location; 0:NA; 1-5)
+* Onlineboarding: (satisfaction level of online boarding; 0:NA; 1-5)
+
+Onboard (5 - totally satisfied, 1 - totally dissatisfied)
+* Wifi: (satisfaction level of inflight wifi service; 0:NA; 1-5)
+* Fooddrink: (satisfaction level of food & drink; 0:NA; 1-5)
+* Seatcomfort: (satisfaction level of seat comfort; 0:NA; 1-5)
+* Inflightentertainment: (satisfaction level of inflight entertainment; 0:NA; 1-5)
+* Onboard: (satisfaction level of on-board services; 0:NA; 1-5)
+* Legroom: (satisfaction level of leg room service; 0:NA; 1-5)
+* Checkin: (satisfaction level of check-in service; 0:NA; 1-5)
+* Inflight: (satisfaction level of inflight service; 0:NA; 1-5)
+* Clean: (satisfaction level of cleanliness; 0:NA; 1-5)
 ## Data Pre-Processing
 Before further analysis, the dataset has been examined based on data quality dimensions such as Accuracy, Completeness, and Timeliness (Berthold et al., 2010). One dimension where issues are found is Completeness. Specifically, a total of 1522 missing values are present in multiple variables (Figure 1.1).
 
@@ -30,7 +64,7 @@ vis_miss(airlinesData68)
 </p>
 <p align="center">Figure 1.1: Snapshot of the raw data</p>
 
-Since NAs in service evaluation variables might come from the lack of such service on the flight, these along with the NAs in ‘Arrival Delay’ are assumed to be missing at random, and thus, the observations with these values are removed from the dataset. On a related note, since the minimum age permitted to travel alone for some airlines is 14 (opodo.co.uk, 2019), feedback from these minors might be biased due to the possible influence of legal guardians accompanying them on the flight. Therefore, observations from passengers under 14 are also removed. After pre-processing, the dataset is now of dimension 9153x23.
+Since NAs in service evaluation variables might come from the lack of such service on the flight, these along with the NAs in ‘Arrival Delay’ are assumed to be missing at random, and thus, the observations with these values are removed from the dataset. Also, since the minimum age permitted to travel alone for some airlines is 14 (opodo.co.uk, 2019), feedback from these minors might be biased due to the possible influence of legal guardians accompanying them on the flight. Therefore, observations from passengers under 14 are also removed. After pre-processing, the dataset is now of dimension 9153x23.
 
 ## Exploratory Data Analysis
 ### Information Values
