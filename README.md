@@ -3,7 +3,7 @@
 In this project undertaken during the MSc Business Analytics programme at Lancaster University, I (1) explored the sample data of a fictional UK airline to uncover insights about the potential drivers of passenger satisfaction and (2) built classification models to predict satisfaction. All processes are done using R.
 ## Table of Content
 1. [Dataset Used](https://github.com/dieu-nguyen24/UKAirline-Predictions#dataset-used)
-2. [Data Pre-processing](https://github.com/dieu-nguyen24/UKAirline-Predictions#data-pre-processing)
+2. [Data Cleaning & Pre-Processing](https://github.com/dieu-nguyen24/UKAirline-Predictions#data-pre-processing)
 3. [Exploratory Data Analysis](https://github.com/dieu-nguyen24/UKAirline-Predictions#exploratory-data-analysis)
 * [Information Values](https://github.com/dieu-nguyen24/UKAirline-Predictions#information-values)
 * [Correlation Analysis](https://github.com/dieu-nguyen24/UKAirline-Predictions#correlation-analysis)
@@ -51,7 +51,40 @@ Onboard (5 - totally satisfied, 1 - totally dissatisfied)
 * Checkin: (satisfaction level of check-in service; 0:NA; 1-5)
 * Inflight: (satisfaction level of inflight service; 0:NA; 1-5)
 * Clean: (satisfaction level of cleanliness; 0:NA; 1-5)
-## Data Pre-Processing
+## Data Cleaning & Pre-Processing
+### Data Cleaning
+```
+#Import the dataset
+airlinesData68 <- read_csv("airlinesData68.csv")
+colnames(airlinesData68) <- make.names(colnames(airlinesData68)) #Remove spaces from column names
+airlinesData68 <- airlinesData68 %>% 
+  dplyr::select(satisfaction, everything()) #Move the target variable to the first column
+colnames(airlinesData68) #Check column names
+#Turn categorical variables into factors
+#Nominal
+airlinesData68[, c("Gender", "Customer.Type", "Type.of.Travel")] <- lapply(airlinesData68[, c("Gender", "Customer.Type", "Type.of.Travel")], factor)
+#Ordinal
+airlinesData68$Class <- factor(airlinesData68$Class, levels = c("Eco","Eco Plus","Business"))
+airlinesData68$satisfaction <- factor(airlinesData68$satisfaction,
+                                      levels = c("neutral or dissatisfied","satisfied"))
+rating_columns <- c("Inflight.wifi.service", "Departure.Arrival.time.convenient",
+                    "Ease.of.Online.booking", "Gate.location", "Food.and.drink",
+                    "Online.boarding", "Seat.comfort", "Inflight.entertainment",
+                    "On.board.service", "Leg.room.service", "Baggage.handling",
+                    "Checkin.service", "Inflight.service", "Cleanliness")
+airlinesData68[, rating_columns] <- lapply(airlinesData68[, rating_columns], function(x) factor(x, levels=1:5))
+
+#Turn 0s into NAs
+airlinesData68[, rating_columns] <- lapply(airlinesData68[, rating_columns], function(x) replace(x, x==0, NA))
+
+#Check dimensions and structure of dataset
+dim(airlinesData68)
+str(airlinesData68)
+
+#Check for NAs
+sum(is.na(airlinesData68))
+```
+### Data Pre-Processing
 Before further analysis, the dataset has been examined based on data quality dimensions such as Accuracy, Completeness, and Timeliness (Berthold et al., 2010). One dimension where issues are found is Completeness. Specifically, a total of 1522 missing values are present in multiple variables (Figure 1.1).
 
 ```
