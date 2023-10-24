@@ -63,7 +63,7 @@ colnames(airlinesData68) <- make.names(colnames(airlinesData68))
 airlinesData68 <- airlinesData68 %>% 
   dplyr::select(satisfaction, everything())
 ```
-Categorical variables are turned into factors. The levels of the ordinal data are assigned from lowest to highest values. Ratings of 0s are converted into NA values for consistency.
+Categorical variables are turned into factors. The levels of the ordinal data are assigned from lowest to highest values.
 ```
 #Check column names 
 colnames(airlinesData68)
@@ -80,7 +80,9 @@ rating_columns <- c("Inflight.wifi.service", "Departure.Arrival.time.convenient"
                     "On.board.service", "Leg.room.service", "Baggage.handling",
                     "Checkin.service", "Inflight.service", "Cleanliness")
 airlinesData68[, rating_columns] <- lapply(airlinesData68[, rating_columns], function(x) factor(x, levels=1:5))
-
+```
+Ratings of 0s are converted into NA values for consistency.
+```
 #Turn 0s into NAs
 airlinesData68[, rating_columns] <- lapply(airlinesData68[, rating_columns], function(x) replace(x, x==0, NA))
 ```
