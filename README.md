@@ -140,7 +140,7 @@ ggpairs(airlinesData68noNA, aes(color = satisfaction), columns = c("Departure.De
 
 In Table 2.1, the IVs of ‘Arrival Delay’, Departure Delay’, ‘Time convenience’ and ‘Gender’ indicate weak discriminatory power. For Delay variables, the scatter plot in Figure 2.1 displays no separability of classes. This finding contrasts with common sense since delays typically impact passenger satisfaction negatively, and so the relevance of this variable should still be considered. ‘Time convenience’, however, does not appear to be important in predicting satisfaction perhaps because this has more to do with customers’ initial flight-booking choice. Notably, Gender has the lowest IV, which suggests that this variable does not have discriminatory influence over satisfaction. Figure 2.2 supports this judgment as the portions of males and females given their satisfaction level are similar.
 ```
-### Class Conditional Barplot - Credit: 
+### Class Conditional Barplot - Credit: Ivan Svetunkov, Kandrika Pritularga
 cc_barplot <- function(Data,x,y, freq = "condProb", main = "") {
   Y <- Data[[y]]
   X <- Data[[x]]
@@ -181,17 +181,32 @@ cc_barplot <- function(Data,x,y, freq = "condProb", main = "") {
 }
 
 #Conditional Probability Bar Plot of Gender given Satisfaction
-cc_barplot(Data = airlinesData68noNA, "Gender","satisfaction", freq = "condprob", main = "Conditional probability of Gender given customer satisfaction")
+cc_barplot(Data = airlinesData68noNA, "Gender","satisfaction", 
+           freq = "condprob", 
+           main = "Conditional probability of Gender given customer satisfaction")
 ```
 According to IVs, ‘Gate location, ‘Age’, ‘Customer type’, ‘Check-in service’ and ‘Food & drink’ have moderate predictive power over satisfaction. In Figure 2.3, even though it seems that older passengers tend to be more satisfied compared to younger passengers, the distinction between classes is not too pronounced. Moreover, individuals in similar age groups can still largely differ from each other, and so, it makes sense for ‘Age’ to have low influence over satisfaction. For ‘Gate location’, its low importance is also reasonable given how this is mostly outside of the airline’s control. In terms of ‘Customer type’, the Weights of Evidence in Figure 2.4 specify that disloyal customers are less likely to be satisfied, while loyal customers are more likely to be satisfied compared to the whole population. The WoE also suggests that satisfaction is more easily predicted when a customer is categorised as ‘disloyal’. Regarding ‘Check-in service’ and ‘Food & drink’ (Figure 2.5 and 2.6), it seems that people who are satisfied with these services are more likely to be satisfied overall and vice versa.
-
+```
+#Conditional Density Plot of Age given Satisfaction
+densityplot(~Age, data=airlinesData68noNA, groups = satisfaction, 
+            auto.key = TRUE, main = "Conditional density P(Age|Satisfaction)")
+```
+```
+#Plot WoE values of all independent variables
+lapply(colnames(airlinesData68noNA[,-c(1,24)]), function(variable) plot_infotables(IV, variable))
+```
 ‘Ease of Online booking, ‘Flight distance’, ‘Inflight service’, ‘Baggage handling’, ‘Cleanliness’, ‘Onboard service’, ‘Leg room service’ and ‘Seat comfort’ have relatively strong predictive power. From the figures below, it seems that if a customer is satisfied overall, there is greater chance that they will rate these airline aspects highly. Regarding ‘Flight distance’, the scatter plot in the bottom panel of Figure 2.1 displays the separability of satisfied customers for longer distance flights.
 
 ‘Online boarding’, ‘Inflight WIFI service’, ‘Class’, ‘Type of travel’ and ‘Inflight entertainment’ have the strongest discriminatory power. Regarding ‘Online boarding’, it seems that if a person is satisfied overall, it is more probable that they have had a good experience with digital boarding. For ‘Inflight entertainment’ and ‘Inflight WIFI service’, a similar pattern can also be seen in Figures 2.14 and 2.15. The high predictive power of these variables over passenger satisfaction is reasonable considering how online boarding helps customers save time, and digital services help people pass their time more enjoyably during the flight.
 
 For ‘Travel type’, the Weights of Evidence in Figure 2.16 suggest that, compared to the population, passengers who travel for business purposes are more likely to be satisfied, whereas those who travel for personal reasons tend to be either neutral or dissatisfied. In addition, the higher magnitude of WoE points out that satisfaction level is more predictable when the type of travel is ‘Personal’. A similar relation can also be seen in ‘Class’ (Figure 2.17). Since Business-class cabins have more premium benefits, it makes sense for Business passengers to be more likely to have higher overall enjoyment.
 ### Correlation Analysis
-To uncover possible relations and similarities between variables, Correlation analysis is conducted. In Figure 3.1, it is notable that two variables related to Flight delays are strongly associated which is reasonable since they both carry information about the effect of delays on airline experience. Moreover, ‘Travel type’ and ‘Class’ are another pair with relatively high association. Since people who travel for work reasons are typically in Business class due to company sponsorship, while those who travel for personal reasons are more likely to be fly Economy, it makes sense for this pair to have similarities. ‘Class’ is also somewhat related to ‘Flight distance’. The reason for this could be that passengers on longer flights may be willing to pay more for a higher-class ticket.
+To uncover possible relations and similarities between variables, Correlation analysis is conducted.
+```
+#Correlation plot
+corrplot(association(airlinesData68noNA[,-24])$value)
+```
+In Figure 3.1, it is notable that two variables related to Flight delays are strongly associated which is reasonable since they both carry information about the effect of delays on airline experience. Moreover, ‘Travel type’ and ‘Class’ are another pair with relatively high association. Since people who travel for work reasons are typically in Business class due to company sponsorship, while those who travel for personal reasons are more likely to be fly Economy, it makes sense for this pair to have similarities. ‘Class’ is also somewhat related to ‘Flight distance’. The reason for this could be that passengers on longer flights may be willing to pay more for a higher-class ticket.
 
 ‘Inflight service’ also appears to be positively associated with ‘Inflight entertainment’ and ‘Onboard service’. As inflight entertainment is part of services provided on the flight, and onboard service might be interpreted similarly as inflight service by passengers answering the survey, the variable ‘Inflight service’ could be redundant.
 ‘Cleanliness,’ ‘Food & drink’, ‘Seat comfort’ and ‘Inflight entertainment’ are other variables with positive correlations with each other. This makes sense because these factors all contribute to the overall enjoyment of the flight. However, it is argued that they do not carry the same information about ‘satisfaction’ and rather they each reflect a different aspect of inflight enjoyment.
