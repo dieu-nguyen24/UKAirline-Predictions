@@ -67,9 +67,11 @@ Categorical variables are turned into factors. The levels of the ordinal data ar
 ```
 #Check column names 
 colnames(airlinesData68)
+
 #Turn categorical variables into factors
 #Nominal
 airlinesData68[, c("Gender", "Customer.Type", "Type.of.Travel")] <- lapply(airlinesData68[, c("Gender", "Customer.Type", "Type.of.Travel")], factor)
+
 #Ordinal
 airlinesData68$Class <- factor(airlinesData68$Class, levels = c("Eco","Eco Plus","Business"))
 airlinesData68$satisfaction <- factor(airlinesData68$satisfaction,
@@ -103,7 +105,16 @@ vis_miss(airlinesData68)
 <p align="center">Figure 1.1: Snapshot of the raw data</p>
 
 Since NAs in service evaluation variables might come from the lack of such service on the flight, these along with the NAs in ‘Arrival Delay’ are assumed to be missing at random, and thus, the observations with these values are removed from the dataset. Also, since the minimum age permitted to travel alone for some airlines is 14 (opodo.co.uk, 2019), feedback from these minors might be biased due to the possible influence of legal guardians accompanying them on the flight. Therefore, observations from passengers under 14 are also removed. After pre-processing, the dataset is now of dimension 9153x23.
+```
+#Make another copy of the processed data
+airlinesData68EDA <- airlinesData68
 
+#Turn values under 14 in Age column into NAs
+airlinesData68EDA$Age <- replace(airlinesData68EDA$Age, airlinesData68EDA$Age < 14, NA)
+
+#Remove all NA values
+airlinesData68noNA <- na.omit(airlinesData68EDA)
+```
 ## Exploratory Data Analysis
 ### Information Values
 To investigate the importance level of each variable, Information Values (IVs) are used and supported by relevant conditional probability plots.
