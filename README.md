@@ -118,9 +118,71 @@ airlinesData68noNA <- na.omit(airlinesData68EDA)
 ## Exploratory Data Analysis
 ### Information Values
 To investigate the importance level of each variable, Information Values (IVs) are used and supported by relevant conditional probability plots.
+```
+y <- airlinesData68noNA$satisfaction=="satisfied"
+class(y)
 
-In Table 2.1, the IVs of ‘Arrival Delay’, Departure Delay’, ‘Time convenience’ and ‘Gender’ indicate weak discriminatory power. For Delay variables, the scatter plot in Figure 2.1 displays no separability of classes. This finding contrasts with common sense since delays typically impact passenger satisfaction negatively (Kim & Park, 2016), and so the relevance of this variable should still be considered. ‘Time convenience’, however, does not appear to be important in predicting satisfaction perhaps because this has more to do with customers’ initial flight-booking choice. Notably, Gender has the lowest IV, which suggests that this variable does not have discriminatory influence over satisfaction. Figure 2.2 supports this judgment as the portions of males and females given their satisfaction level are similar.
+y <- 1*y
+class(y)
 
+airlinesData68noNA["class"] <- y
+
+IV <- create_infotables(data=airlinesData68noNA[,-c(1)], y="class", bins=6)
+IV
+```
+
+```
+#Density, scatter plots
+ggpairs(airlinesData68noNA, aes(color = satisfaction), columns = c("Departure.Delay.in.Minutes",
+                                                                   "Arrival.Delay.in.Minutes",
+                                                                   "Flight.Distance"))
+```
+
+In Table 2.1, the IVs of ‘Arrival Delay’, Departure Delay’, ‘Time convenience’ and ‘Gender’ indicate weak discriminatory power. For Delay variables, the scatter plot in Figure 2.1 displays no separability of classes. This finding contrasts with common sense since delays typically impact passenger satisfaction negatively, and so the relevance of this variable should still be considered. ‘Time convenience’, however, does not appear to be important in predicting satisfaction perhaps because this has more to do with customers’ initial flight-booking choice. Notably, Gender has the lowest IV, which suggests that this variable does not have discriminatory influence over satisfaction. Figure 2.2 supports this judgment as the portions of males and females given their satisfaction level are similar.
+```
+### Class Conditional Barplot - Credit: 
+cc_barplot <- function(Data,x,y, freq = "condProb", main = "") {
+  Y <- Data[[y]]
+  X <- Data[[x]]
+  
+  require(ggplot2)
+  if (freq == "count" | freq =="freq") {
+    p <- ggplot(Data, aes(x = X, fill = Y)) + geom_bar(position = "dodge") + 
+      labs(fill=y, x=x, y="count") + theme_bw() 
+  } else if (freq=="relfreq") {
+    
+    tab <- table(Y,X)
+    cl <- colSums(tab)
+    for (i in 1:ncol(tab)) {
+      tab[,i] <- tab[,i]/cl[i]
+    }
+    Y <- as.data.frame(tab)
+    p <- ggplot(Y, aes(x=X, y=Freq, fill=Y)) + geom_col(position = "dodge") + 
+      labs(fill=y, x=x, y="Relative Frequency") + theme_bw() +
+      geom_text(aes(x=X, y=Freq+ 0.03, label=signif(Freq,2)), position=position_dodge(width=0.9))
+    
+  } else {
+    tab <- table(Y,X)
+    cl <- rowSums(tab)
+    for (i in 1:nrow(tab)) {
+      tab[i,] <- tab[i,]/cl[i]
+    }
+    Y <- as.data.frame(tab)
+    p <- ggplot(Y, aes(x=X, y=Freq, fill=Y)) + geom_col(position = "dodge") + 
+      labs(fill=y, x=x, y=paste0("P(",x," | ",y,")")) + theme_bw() +
+      geom_text(aes(x=X, y=Freq+ 0.03, label=signif(Freq,2)), position=position_dodge(width=0.9)) 
+    #ggtitle(paste("Conditional Probability of ",x,"given",y))
+  }
+  
+  if (main != "") {
+    p <- p + ggtitle(label=main) + theme(plot.title = element_text(hjust = 0.5))
+  }
+  print(p)
+}
+
+#Conditional Probability Bar Plot of Gender given Satisfaction
+cc_barplot(Data = airlinesData68noNA, "Gender","satisfaction", freq = "condprob", main = "Conditional probability of Gender given customer satisfaction")
+```
 According to IVs, ‘Gate location, ‘Age’, ‘Customer type’, ‘Check-in service’ and ‘Food & drink’ have moderate predictive power over satisfaction. In Figure 2.3, even though it seems that older passengers tend to be more satisfied compared to younger passengers, the distinction between classes is not too pronounced. Moreover, individuals in similar age groups can still largely differ from each other, and so, it makes sense for ‘Age’ to have low influence over satisfaction. For ‘Gate location’, its low importance is also reasonable given how this is mostly outside of the airline’s control. In terms of ‘Customer type’, the Weights of Evidence in Figure 2.4 specify that disloyal customers are less likely to be satisfied, while loyal customers are more likely to be satisfied compared to the whole population. The WoE also suggests that satisfaction is more easily predicted when a customer is categorised as ‘disloyal’. Regarding ‘Check-in service’ and ‘Food & drink’ (Figure 2.5 and 2.6), it seems that people who are satisfied with these services are more likely to be satisfied overall and vice versa.
 
 ‘Ease of Online booking, ‘Flight distance’, ‘Inflight service’, ‘Baggage handling’, ‘Cleanliness’, ‘Onboard service’, ‘Leg room service’ and ‘Seat comfort’ have relatively strong predictive power. From the figures below, it seems that if a customer is satisfied overall, there is greater chance that they will rate these airline aspects highly. Regarding ‘Flight distance’, the scatter plot in the bottom panel of Figure 2.1 displays the separability of satisfied customers for longer distance flights.
