@@ -243,9 +243,32 @@ lapply(colnames(airlinesData68noNA[,-c(1,24)]), function(variable) plot_infotabl
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ccbar_onboard.png" alt="Conditional Bar Plot Onboard Service" width="500"/>
 </p>
 <p align="center">Figure 2.10</p>
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ccbar_clean.png" alt="Conditional Bar Plot Cleanliness" width="500"/>
+</p>
+<p align="center">Figure 2.11</p>
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ccbar_baggage.png" alt="Conditional Bar Plot Baggage Handling" width="500"/>
+</p>
+<p align="center">Figure 2.12</p>
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ccbar_inflight.png" alt="Conditional Bar Plot Inflight Service" width="500"/>
+</p>
+<p align="center">Figure 2.13</p>
 
 ‘Online boarding’, ‘Inflight WIFI service’, ‘Class’, ‘Type of travel’ and ‘Inflight entertainment’ have the strongest discriminatory power. Regarding ‘Online boarding’, it seems that if a person is satisfied overall, it is more probable that they have had a good experience with digital boarding. For ‘Inflight entertainment’ and ‘Inflight WIFI service’, a similar pattern can also be seen in Figures 2.15 and 2.16. The high predictive power of these variables over passenger satisfaction is reasonable considering how online boarding helps customers save time, and digital services help people pass their time more enjoyably during the flight.
-
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ccbar_onlineboard.png" alt="Conditional Bar Plot Online Boarding" width="500"/>
+</p>
+<p align="center">Figure 2.14</p>
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ccbar_inflightent.png" alt="Conditional Bar Plot Inflight Entertainment" width="500"/>
+</p>
+<p align="center">Figure 2.15</p>
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ccbar_inflightwifi.png" alt="Conditional Bar Plot Inflight WIFI" width="500"/>
+</p>
+<p align="center">Figure 2.16</p>
 For ‘Travel type’, the Weights of Evidence in Figure 2.17 suggest that, compared to the population, passengers who travel for business purposes are more likely to be satisfied, whereas those who travel for personal reasons tend to be either neutral or dissatisfied. In addition, the higher magnitude of WoE points out that satisfaction level is more predictable when the type of travel is ‘Personal’. A similar relation can also be seen in ‘Class’ (Figure 2.18). Since Business-class cabins have more premium benefits, it makes sense for Business passengers to be more likely to have higher overall enjoyment.
 
 <p align="center">
