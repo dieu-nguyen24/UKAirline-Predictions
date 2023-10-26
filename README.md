@@ -133,7 +133,7 @@ IV <- create_infotables(data=airlinesData68noNA[,-c(1)], y="class", bins=6)
 IV
 ```
 <p align="center">
-  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/IVs.png" alt="IVs"/>
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/IVs.png" alt="IVs" width="400"/>
 </p>
 <p align="center">Figure 2.1: Information Values of predictors</p>
 
@@ -144,7 +144,7 @@ ggpairs(airlinesData68noNA, aes(color = satisfaction), columns = c("Departure.De
                                                                    "Flight.Distance"))
 ```
 <p align="center">
-  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ggpairs_density_scatter.png" alt="Density and Scatter plots"/>
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ggpairs_density_scatter.png" alt="Density and Scatter plots" width="600"/>
 </p>
 <p align="center">Figure 2.2: Density and Scatter plots</p>
 
@@ -196,7 +196,7 @@ cc_barplot(Data = airlinesData68noNA, "Gender","satisfaction",
            main = "Conditional probability of Gender given customer satisfaction")
 ```
 <p align="center">
-  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ccbarplot_gender.png" alt="Conditional Probability Bar Plot"/>
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ccbarplot_gender.png" alt="Conditional Probability Bar Plot Gender" width="500"/>
 </p>
 <p align="center">Figure 2.3</p>
 
@@ -207,7 +207,7 @@ densityplot(~Age, data=airlinesData68noNA, groups = satisfaction,
             auto.key = TRUE, main = "Conditional density P(Age|Satisfaction)")
 ```
 <p align="center">
-  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/densityage.png" alt="Conditional Density"/>
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/densityage.png" alt="Conditional Density" width="500"/>
 </p>
 <p align="center">Figure 2.4</p>
 
@@ -216,25 +216,47 @@ densityplot(~Age, data=airlinesData68noNA, groups = satisfaction,
 lapply(colnames(airlinesData68noNA[,-c(1,24)]), function(variable) plot_infotables(IV, variable))
 ```
 <p align="center">
-  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/woe_custype.png" alt="WoE Customer Type"/>
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/woe_custype.png" alt="WoE Customer Type" width="400"/>
 </p>
 <p align="center">Figure 2.5: WoE of Customer Type</p>
 
 <p align="center">
-  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/woecheckin.png" alt="WoE of Checkin Service"/>
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/woecheckin.png" alt="WoE of Checkin Service" width="400"/>
 </p>
 <p align="center">Figure 2.6: WoE of Checkin Service</p>
 
 <p align="center">
-  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/woefooddrink.png" alt="WoE of Food and Drink"/>
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/woefooddrink.png" alt="WoE of Food and Drink" width="400"/>
 </p>
 <p align="center">Figure 2.7: WoE of Food & Drink</p>
 
 ‘Ease of Online booking, ‘Flight distance’, ‘Inflight service’, ‘Baggage handling’, ‘Cleanliness’, ‘Onboard service’, ‘Leg room service’ and ‘Seat comfort’ have relatively strong predictive power. From the figures below, it seems that if a customer is satisfied overall, there is greater chance that they will rate these airline aspects highly. Regarding ‘Flight distance’, the scatter plot in the bottom panel of Figure 2.2 displays the separability of satisfied customers for longer distance flights.
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ccbar_easeonlinebook.png" alt="Conditional Bar Plot Ease of Online Booking" width="500"/>
+</p>
+<p align="center">Figure 2.8</p>
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ccbar_seatcomfort.png" alt="Conditional Bar Plot Seat Comfort" width="500"/>
+</p>
+<p align="center">Figure 2.9</p>
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ccbar_onboard.png" alt="Conditional Bar Plot Onboard Service" width="500"/>
+</p>
+<p align="center">Figure 2.10</p>
 
 ‘Online boarding’, ‘Inflight WIFI service’, ‘Class’, ‘Type of travel’ and ‘Inflight entertainment’ have the strongest discriminatory power. Regarding ‘Online boarding’, it seems that if a person is satisfied overall, it is more probable that they have had a good experience with digital boarding. For ‘Inflight entertainment’ and ‘Inflight WIFI service’, a similar pattern can also be seen in Figures 2.15 and 2.16. The high predictive power of these variables over passenger satisfaction is reasonable considering how online boarding helps customers save time, and digital services help people pass their time more enjoyably during the flight.
 
 For ‘Travel type’, the Weights of Evidence in Figure 2.17 suggest that, compared to the population, passengers who travel for business purposes are more likely to be satisfied, whereas those who travel for personal reasons tend to be either neutral or dissatisfied. In addition, the higher magnitude of WoE points out that satisfaction level is more predictable when the type of travel is ‘Personal’. A similar relation can also be seen in ‘Class’ (Figure 2.18). Since Business-class cabins have more premium benefits, it makes sense for Business passengers to be more likely to have higher overall enjoyment.
+
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/woetypetravel.png" alt="WoE of Travel Type" width="400"/>
+</p>
+<p align="center">Figure 2.17: WoE of Travel Type</p>
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/woeclass.png" alt="WoE of Class" width="400"/>
+</p>
+<p align="center">Figure 2.18: WoE of Ticket Class</p>
+
 ### Correlation Analysis
 To uncover possible relations and similarities between variables, Correlation analysis is conducted.
 ```
