@@ -51,6 +51,28 @@ Onboard (5 - totally satisfied, 1 - totally dissatisfied)
 * Checkin: (satisfaction level of check-in service; 0:NA; 1-5)
 * Inflight: (satisfaction level of inflight service; 0:NA; 1-5)
 * Clean: (satisfaction level of cleanliness; 0:NA; 1-5)
+## Libraries used
+```
+library(greybox)
+library(lattice)
+library(Information)
+library(MASS)
+library(ggplot2)
+library(lessR)
+library(corrplot)
+library(dplyr)
+library(plotrix)
+library(cluster)
+library(GGally)
+library(mclust)
+library(ISLR2)
+library(leaps)
+library(glmnet)
+library(naniar)
+library(visdat)
+library(Hmisc)
+library(moments)
+```
 ## Data Cleaning & Pre-Processing
 ### Data Cleaning
 The dataset is first examined and cleaned into a more convenient format.
@@ -286,9 +308,14 @@ To uncover possible relations and similarities between variables, Correlation an
 #Correlation plot, removing the binary class variable previously created
 corrplot(association(airlinesData68noNA[,-24])$value)
 ```
-In Figure 3.1, it is notable that two variables related to Flight delays are strongly associated which is reasonable since they both carry information about the effect of delays on airline experience. Moreover, ‘Travel type’ and ‘Class’ are another pair with relatively high association. Since people who travel for work reasons are typically in Business class due to company sponsorship, while those who travel for personal reasons are more likely to be fly Economy, it makes sense for this pair to have similarities. ‘Class’ is also somewhat related to ‘Flight distance’. The reason for this could be that passengers on longer flights may be willing to pay more for a higher-class ticket.
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/corrplot.png" alt="Association Heatmap" width=800/>
+</p>
+<p align="center">Figure 3.1: Association Heatmap</p>
+In Figure 3.1, it is notable that two variables related to Flight delays are strongly associated which is reasonable since they both carry information about the effect of delays on airline experience. Moreover, ‘Travel type’ and ‘Class’ are another pair with relatively high association. Since people who travel for work reasons are typically in Business class due to company sponsorship, while those who travel for personal reasons are more likely to fly Economy, it makes sense for this pair to have similarities. ‘Class’ is also somewhat related to ‘Flight distance’. The reason for this could be that passengers on longer flights may be willing to pay more for a higher-class ticket.
 
 ‘Inflight service’ also appears to be positively associated with ‘Inflight entertainment’ and ‘Onboard service’. As inflight entertainment is part of services provided on the flight, and onboard service might be interpreted similarly as inflight service by passengers answering the survey, the variable ‘Inflight service’ could be redundant.
+
 ‘Cleanliness,’ ‘Food & drink’, ‘Seat comfort’ and ‘Inflight entertainment’ are other variables with positive correlations with each other. This makes sense because these factors all contribute to the overall enjoyment of the flight. However, it is argued that they do not carry the same information about ‘satisfaction’ and rather they each reflect a different aspect of inflight enjoyment.
 
 Passengers who value inflight WIFI may also place a high importance on Online booking and boarding as suggested by the heatmap. Such correlations may indicate the level of tech-savviness of customers. In addition, as satisfaction with ‘Gate location’ improves, so does the convenience of flight timing as well as ‘Ease of Online booking’ and vice versa. The relations between these factors are sensible as they all indicate pre-flight enjoyment.
@@ -296,10 +323,56 @@ Passengers who value inflight WIFI may also place a high importance on Online bo
 To find the most common characteristics among customers, MDS is used as this technique can help provide a visual representation of similarities between passengers in a low-dimensional space (Borg & Groenen, 2005). Given that this dataset contains both categorical and continuous variables, the distance metric chosen to calculate such (dis)similarities is Gower’s coefficient because this method applies suitable measures on different data types, and thus, is more robust to scale differences compared to less computationally intensive measures such as Euclidean distance (ibid.).
 
 Notably, scaling is still used for ‘Arrival Delay’ before MDS application because its data is highly skewed and could potentially distort the outputs. A constant of 1 is added to the variable given the large number of zeros present and Log transformation is performed. The skewness of this variable is reduced from 4.62 to 0.87.
+```
+#Log transform Arrival Delay variable
+airlinesData68noNA$Arrival.Delay.tf <- airlinesData68noNA$Arrival.Delay.in.Minutes + 1
+airlinesData68noNA$Arrival.Delay.tf <- log10(airlinesData68noNA$Arrival.Delay.tf)
 
+#Compare the skewness of original and transformed Arrival Delay variable
+skewness(airlinesData68noNA$Arrival.Delay.tf)
+skewness(airlinesData68noNA$Arrival.Delay.in.Minutes)
+```
 Unlike PCA, MDS does not resolve the issue of multicollinearity. Therefore, some variables which have been found to be similar with others in the previous section i.e. ‘Type of Travel’, ‘Inflight service’, ‘Departure Delay’ are removed before performing MDS. Furthermore, ‘Gender, ‘Gate location’ and ‘Time convenience’ are also removed as they do not contribute much to distinguishing between customers.
+```
+#Remove chosen variables
+cols_torm <- c("satisfaction","Type.of.Travel","Inflight.service",
+   "Departure.Delay.in.Minutes", "Gender",
+   "Gate.location","Departure.Arrival.time.convenient", "Arrival.Delay.in.Minutes", "class")
 
-The number of dimensions to reduce to is chosen based on Stress metrics. To lessen computational complications, a random sample of 1000 values (with a random seed ‘0’ set for reproducibility) is used for the calculations of stress values for different dimensionalities. According to Figure 4.1, 2D MDS makes the most sense as Stress is lowest for two dimensions. Interpretation is also simpler in this case compared to higher dimensions.
+airline_transformed <- airlinesData68noNA[,-which(names(airlinesData68noNA) %in% cols_torm)]
+```
+The number of dimensions to reduce to is chosen based on Stress metrics. To lessen computational complications, a random sample of 1000 values (with a random seed ‘0’ set for reproducibility) is used for the calculations of stress values for different dimensionalities.
+```
+#Take a sample of 1000 observations
+set.seed(0)
+airlinesData68_sample <- sample_n(airline_transformed, 1000)
+```
+According to Figure 4.1, 2D MDS makes the most sense as Stress is lowest for two dimensions. Interpretation is also simpler in this case compared to higher dimensions.
+```
+#Dissimilarity Matrix
+airlinesData68DissimMatrix <- daisy(airlinesData68_sample, metric = "gower")
+
+#Stress plot
+#Number of original dimensions
+nDim <- ncol(airlinesData68_sample)
+airlinesData68Stress <- vector("numeric", nDim)
+
+for (i in 1:nDim){
+  #Do MDS
+  airlinesData68MDSTest <- cmdscale(airlinesData68DissimMatrix, k=i)
+  #Produce dissimilarities matrix for the new dimensions
+  airlinesData68MDSDist <- daisy(airlinesData68MDSTest, "gower")
+  #Calculate stress metrics
+  airlinesData68Stress[i] <- sqrt(sum((airlinesData68DissimMatrix - 
+                                         airlinesData68MDSDist)^2)/sum(airlinesData68DissimMatrix^2))
+}
+
+plot(airlinesData68Stress, main="Stress Diagram", xlab="Dimensions", ylab = "Stress")
+```
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/stressdiagram.png" alt="Stress Diagram" width=600/>
+</p>
+<p align="center">Figure 4.1: Stress Diagram</p>
 
 Figure 4.2 shows the two-dimensional representation of the (dis)similarity between passengers based on their characteristics. Since three clusters are observed from the plot, K-means clustering is used to segment similar customers. Each cluster is then analysed to find the most common characteristics.
 
