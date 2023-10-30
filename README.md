@@ -374,7 +374,37 @@ plot(airlinesData68Stress, main="Stress Diagram", xlab="Dimensions", ylab = "Str
 </p>
 <p align="center">Figure 4.1: Stress Diagram</p>
 
-Figure 4.2 shows the two-dimensional representation of the (dis)similarity between passengers based on their characteristics. Since three clusters are observed from the plot, K-means clustering is used to segment similar customers. Each cluster is then analysed to find the most common characteristics.
+MDS with 2 dimensions is then performed on all data.
+```
+#Generate Dissimilarity Matrix using all data
+distgower <- daisy(airline_transformed, metric = "gower")
+
+#Perform MDS with 2 dimensions
+allMDS <- cmdscale(distgower, k=2)
+
+#Change column names to D1 (dimension 1) and D2 (dimension 2)
+colnames(allMDS) <- c("D1", "D2")
+
+#Visualise the 2 dimensions
+plot(allMDS, main = "MDS data", xlim = c(-0.4, 0.5), ylim=c(-0.5, 0.4))
+```
+
+Figure 4.2 shows the two-dimensional representation of the (dis)similarity between passengers based on their characteristics. Since three clusters are observed from the plot, K-means clustering is used to segment similar customers (Figure 4.3). Each cluster is then analysed to find the most common characteristics.
+
+```
+#Add the 2 dimensions to the processed data
+airlinesData68New <- cbind(as.data.frame(allMDS), airline_transformed)
+#K-means
+kmeans <- kmeans(airlinesData68New[,c(1,2)], centers=3)
+cluster_assignments <- factor(kmeans$cluster)
+
+#Add the cluster assignments to the processed data
+airlinesData68New$clusters <- cluster_assignments
+
+#Visualise the MDS data after segmented into 3 clusters
+qplot(D1, D2, colour = airlinesData68New$clusters, 
+      data = airlinesData68New[,c(1,2)]) + scale_colour_discrete("Clusters")
+```
 
 From Figure 4.3, it appears that the majority of Cluster 1 consists of younger Economy travellers who have had either neutral or subpar experience with services. The only services with generally higher ratings from this group are Baggage-handling and Check-in service. It is worth noting that if a customer feels neutral or dissatisfied, the probability of them belonging to Cluster 1 is highest compared to other clusters (Figure 4.4). This suggests that improvements to services badly rated by this segment might help to increase overall satisfaction.
 
