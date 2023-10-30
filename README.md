@@ -388,13 +388,18 @@ colnames(allMDS) <- c("D1", "D2")
 #Visualise the 2 dimensions
 plot(allMDS, main = "MDS data", xlim = c(-0.4, 0.5), ylim=c(-0.5, 0.4))
 ```
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/MDS.png" alt="MDS" width=600/>
+</p>
+<p align="center">Figure 4.2</p>
 
-Figure 4.2 shows the two-dimensional representation of the (dis)similarity between passengers based on their characteristics. Since three clusters are observed from the plot, K-means clustering is used to segment similar customers (Figure 4.3). Each cluster is then analysed to find the most common characteristics.
+Figure 4.2 shows the two-dimensional representation of the (dis)similarity between passengers based on their characteristics. Since three clusters are observed from the plot, K-means clustering is used to segment similar customers (Figure 4.3).
 
 ```
 #Add the 2 dimensions to the processed data
 airlinesData68New <- cbind(as.data.frame(allMDS), airline_transformed)
-#K-means
+
+#Perform K-means clustering
 kmeans <- kmeans(airlinesData68New[,c(1,2)], centers=3)
 cluster_assignments <- factor(kmeans$cluster)
 
@@ -405,12 +410,16 @@ airlinesData68New$clusters <- cluster_assignments
 qplot(D1, D2, colour = airlinesData68New$clusters, 
       data = airlinesData68New[,c(1,2)]) + scale_colour_discrete("Clusters")
 ```
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/MDSclusters.png" alt="MDSclusters" width=600/>
+</p>
+<p align="center">Figure 4.3: MDS plot with passengers divided into clusters</p>
 
-From Figure 4.3, it appears that the majority of Cluster 1 consists of younger Economy travellers who have had either neutral or subpar experience with services. The only services with generally higher ratings from this group are Baggage-handling and Check-in service. It is worth noting that if a customer feels neutral or dissatisfied, the probability of them belonging to Cluster 1 is highest compared to other clusters (Figure 4.4). This suggests that improvements to services badly rated by this segment might help to increase overall satisfaction.
+Each cluster is then analysed to find the most common characteristics. From Figure 4.4, it appears that the majority of Cluster 1 consists of younger Economy travellers who have had either neutral or subpar experience with services. The only services with generally higher ratings from this group are Baggage-handling and Check-in service. It is worth noting that if a customer feels neutral or dissatisfied, the probability of them belonging to Cluster 1 is highest compared to other clusters (Figure 4.5). This suggests that improvements to services badly rated by this segment might help to increase overall satisfaction.
 
-Cluster 2 and Cluster 3, on the other hand, are especially similar with each other and noticeably different from Cluster 1 in several aspects (Figure 4.5 and 4.6). These two groups tend to have more Business passengers and the median age is slightly higher. Their experience with airline services is generally more satisfactory than Cluster 1, which could possibly be driven by the pricier ticket class. One observable difference between Cluster 2 and 3 is that general service satisfaction, except for ‘Ease of Online booking’, is only slightly lower for the former group as there are more 4/5 ratings compared to Cluster 3’s common 5/5 ratings.
+Cluster 2 and Cluster 3, on the other hand, are especially similar with each other and noticeably different from Cluster 1 in several aspects (Figure 4.6 and 4.7). These two groups tend to have more Business passengers and the median age is slightly higher. Their experience with airline services is generally more satisfactory than Cluster 1, which could possibly be driven by the pricier ticket class. One observable difference between Cluster 2 and 3 is that general service satisfaction, except for ‘Ease of Online booking’, is only slightly lower for the former group as there are more 4/5 ratings compared to Cluster 3’s common 5/5 ratings.
 
-From the general understanding of the clusters, a possible name for D1 could be ‘Price consciousness’ given the location of the clusters in Figure 4.2 and how there is a greater portion of Economy passengers in Cluster 1. However, the slight overlapping of classes among segments suggest that D1 might be more characterised by other aspects. From Figure 4.7, D1 seems to have negative relations with many variables related to onboard services. This observation combined with prior cluster analysis suggest that D1 could be viewed as ‘Inflight quality dissatisfaction’, especially since passengers who have had average to poor inflight experience are more concentrated on the right-hand side of the MDS plot, while on the left-hand side, there are more travellers with positive experience (Figure 4.8).
+From the general understanding of the clusters, a possible name for D1 could be ‘Price consciousness’ given the location of the clusters in Figure 4.2 and how there is a greater portion of Economy passengers in Cluster 1. However, the slight overlapping of classes among segments suggest that D1 might be more characterised by other aspects. From Figure 4.8, D1 seems to have negative relations with many variables related to onboard services. This observation combined with prior cluster analysis suggest that D1 could be viewed as ‘Inflight quality dissatisfaction’, especially since passengers who have had average to poor inflight experience are more concentrated on the right-hand side of the MDS plot, while on the left-hand side, there are more travellers with positive experience (Figure 4.8).
 
 D2 is less clear to interpret compared to D1. LASSO regression is then performed to find the combination of variables that best explain this dimension. This method is favoured over stepwise because it is better for variable selection given the high-dimensional nature of the dataset and can avoid the risk of overfitting (James et al., 2021). From the model output in Table 4.1, it seems that people who gave 4/5 ratings for the listed onboard services are more associated with the upper area of the MDS plot, which is consistent with previous cluster analysis. One possible interpretation of D2 could be ‘Level of criticalness’ in terms of service evaluations.
 
