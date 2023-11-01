@@ -1,6 +1,15 @@
 # 🛩 UK Airline EDA and Classification Predictions
 ## Objectives
-In this project undertaken during the MSc Business Analytics programme at Lancaster University, I (1) explored the sample data of a fictional UK airline to uncover insights about the main factors influencing passenger satisfaction and (2) built classification models to predict whether a new customer will be satisfied given their characteristics and survey responses. All processes are done using R.
+This project undertaken by me during the MSc Business Analytics programme at Lancaster University has two main parts:
+1. Exploring the sample data of a fictional UK airline to uncover insights about the main factors influencing passenger satisfaction.
+   The questions to be addressed in this section are:
+- Which variables appear to be important for the task at hand?
+- Are different variables related? Which variables convey information similar to that provided in other variable(s)?
+- What are the most common characteristics among the passengers?
+
+2. Building classification models to predict whether a new customer will be satisfied given their characteristics and survey responses. The ideal model will be able to achieve the company’s goals of at least 95% in terms of Specificity (True Negative Rate) and 90% regarding Sensitivity (True Positive Rate).
+
+All processes are done using R.
 ## Table of Content
 1. [Dataset Used](https://github.com/dieu-nguyen24/UKAirline-Predictions#dataset-used)
 2. [Data Cleaning & Pre-Processing](https://github.com/dieu-nguyen24/UKAirline-Predictions#data-pre-processing)
@@ -138,10 +147,6 @@ airlinesData68EDA$Age <- replace(airlinesData68EDA$Age, airlinesData68EDA$Age < 
 airlinesData68noNA <- na.omit(airlinesData68EDA)
 ```
 ## Exploratory Data Analysis
-The questions to be addressed in this section are:
-- Which variables appear to be important for the task at hand?
-- Are different variables related? Which variables convey information similar to that provided in other variable(s)?
-- What are the most common characteristics among the passengers?
 ### Information Values
 To investigate the importance level of each variable, Information Values (IVs) are used and supported by relevant conditional probability plots.
 ```
