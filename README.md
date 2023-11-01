@@ -459,6 +459,10 @@ D2 is less clear to interpret compared to D1. LASSO regression is then performed
 </p>
 <p align="center">Figure 4.10: Summary of LASSO regression model</p>
 
+In conclusion, the variables with the strongest predictive power over passenger satisfaction are ‘Online boarding’, ‘Class’ and those that contribute toward overall inflight enjoyment such as ‘Inflight WIFI service’, ‘Inflight entertainment’ and ‘Seat comfort’. Regarding the relations between variables, pairs of variables that convey similar information with respect to the target variable are ‘Arrival vs. Departure Delay’ and ‘Class’ vs. ‘Type of Travel’. ‘Inflight service’ has also been found to be quite redundant. Multicollinearity could be a problem for the final task of building a predictive model if such pairs are not handled properly. Lastly, three similar groups of customers are detected from the use of MDS and clustering. For one segment, the most common characteristics can be viewed as the tendency to travel in Economy class and having lower inflight enjoyment. The other two are characterised by their more premium ticket class and higher level of inflight satisfaction.
+
+To increase overall satisfaction, it is recommended to focus on improving the mentioned inflight services. More attention should also be paid to the segment of Economy passengers.
+
 ## Model Building
 ### Logistic Regression
 ### k-NN
