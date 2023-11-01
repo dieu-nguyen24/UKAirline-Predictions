@@ -435,9 +435,29 @@ Cluster 2 and Cluster 3, on the other hand, are especially similar with each oth
 </p>
 <p align="center">Figure 4.7: Snapshot of Cluster 3’s characteristics</p>
 
-From the general understanding of the clusters, a possible name for D1 could be ‘Price consciousness’ given the location of the clusters in Figure 4.2 and how there is a greater portion of Economy passengers in Cluster 1. However, the slight overlapping of classes among segments suggest that D1 might be more characterised by other aspects. From Figure 4.8, D1 seems to have negative relations with many variables related to onboard services. This observation combined with prior cluster analysis suggest that D1 could be viewed as ‘Inflight quality dissatisfaction’, especially since passengers who have had average to poor inflight experience are more concentrated on the right-hand side of the MDS plot, while on the left-hand side, there are more travellers with positive experience (Figure 4.8).
+From the general understanding of the clusters, a possible name for D1 could be ‘Price consciousness’ given the location of the clusters in Figure 4.2 and how there is a greater portion of Economy passengers in Cluster 1. However, the slight overlapping of classes among segments suggest that D1 might be more characterised by other aspects. From Figure 4.8, D1 seems to have negative relations with many variables related to onboard services. This observation combined with prior cluster analysis suggest that D1 could be viewed as ‘Inflight quality dissatisfaction’, especially since passengers who have had average to poor inflight experience are more concentrated on the right-hand side of the MDS plot, while on the left-hand side, there are more travellers with positive experience (Figure 4.9).
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/spreadplot.png" alt="Spread"/>
+</p>
+<p align="center">Figure 4.8: Spread Matrix</p>
+<p align="center">
+  <table>
+    <tr>
+      <td> <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/int.ent.sep.png"  alt="1"></td>
+      <td><img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/clean.sep.png" alt="2" ></td>
+     </tr> 
+     <tr>
+        <td><img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/fooddrink.sep.png" alt="3"></td>
+        <td><img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/seat.sep.png" align="right" alt="4"></td>
+    </tr>
+  </table>
+<p align="center">Figure 4.9: Separability of ratings for different inflight aspects</p>
 
-D2 is less clear to interpret compared to D1. LASSO regression is then performed to find the combination of variables that best explain this dimension. This method is favoured over stepwise because it is better for variable selection given the high-dimensional nature of the dataset and can avoid the risk of overfitting (James et al., 2021). From the model output in Table 4.1, it seems that people who gave 4/5 ratings for the listed onboard services are more associated with the upper area of the MDS plot, which is consistent with previous cluster analysis. One possible interpretation of D2 could be ‘Level of criticalness’ in terms of service evaluations.
+D2 is less clear to interpret compared to D1. LASSO regression is then performed to find the combination of variables that best explain this dimension. This method is favoured over stepwise because it is better for variable selection given the high-dimensional nature of the dataset and can avoid the risk of overfitting (James et al., 2021). From the model output in Figure 4.10, it seems that people who gave 4/5 ratings for the listed onboard services are more associated with the upper area of the MDS plot, which is consistent with previous cluster analysis. One possible interpretation of D2 could be ‘Level of criticalness’ in terms of service evaluations.
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/lassoD2.png" alt="Lasso" width=300/>
+</p>
+<p align="center">Figure 4.10: Summary of LASSO regression model</p>
 
 ## Model Building
 ### Logistic Regression
