@@ -454,6 +454,39 @@ From the general understanding of the clusters, a possible name for D1 could be 
 <p align="center">Figure 4.9: Separability of ratings for different inflight aspects</p>
 
 D2 is less clear to interpret compared to D1. LASSO regression is then performed to find the combination of variables that best explain this dimension. This method is favoured over stepwise because it is better for variable selection given the high-dimensional nature of the dataset and can avoid the risk of overfitting (James et al., 2021). From the model output in Figure 4.10, it seems that people who gave 4/5 ratings for the listed onboard services are more associated with the upper area of the MDS plot, which is consistent with previous cluster analysis. One possible interpretation of D2 could be ‘Level of criticalness’ in terms of service evaluations.
+```
+#LASSO D2
+x <- model.matrix(D2~., airlinesData68New[,-c(3,24,26:28)])[, -c(1,2)]
+y <- airlinesData68New$D2
+
+set.seed(1)
+
+#split the data
+random.id <- sample(1:nrow(x))
+train <- sample(random.id, nrow(x)*0.80) # 80% of the data is the training set 
+test <- random.id[-train]
+y.test <- y[test]
+
+grid <- 10^seq(10, -2, length = 100) #grid to tune lambda
+
+# estimate lasso regression for each lambda
+lasso.fit <- glmnet(x[train,], y[train], alpha = 1,
+                    lambda = grid)
+set.seed(1)
+foldid <- sample(1:10, size = length(train), replace = TRUE)
+print(foldid)
+
+#perform Cross validation
+lasso.cv.out <- cv.glmnet(x[train,], y[train], alpha = 1,
+                          foldid = foldid, nfolds = 10)
+
+lasso.bestlam <- lasso.cv.out$lambda.min
+print(lasso.bestlam)
+
+lasso.coef.min <- predict(lasso.fit, type = "coefficients",
+                          s = lasso.bestlam)
+print(lasso.coef.min)
+```
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/lassoD2.png" alt="Lasso" width=300/>
 </p>
