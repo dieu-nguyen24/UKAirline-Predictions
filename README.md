@@ -81,6 +81,8 @@ library(naniar)
 library(visdat)
 library(Hmisc)
 library(moments)
+library(string)
+library(caret)
 ```
 ## Data Cleaning & Pre-Processing
 ### Data Cleaning
@@ -508,6 +510,46 @@ print(lasso.coef.min)
 - To increase overall satisfaction, it is recommended to focus on improving the mentioned inflight services. More attention should also be paid to the segment of Economy passengers.
 
 ## Model Building
+The data used in this part has been pre-processed according to the findings from the EDA part. The variables Gender, Time convenience, and Departure delay are excluded either due to their low predictive power or high correlation with another variable. To ensure comparability, the numeric variables (Age, Flight distance, and Arrival delay) are scaled using the min-max approach, and categorical variables (Customer type, Class, service ratings) are transformed to be sets of dummy variables. The two classes ‘satisfied’ and ‘neutral or dissatisfied’ are changed to “Yes” and “No” respectively for ease of code manipulation in R.
+```
+#Pre-process data
+vars.to.rm <- c("Gender","Departure.Arrival.time.convenient",
+                "Departure.Delay.in.Minutes","Arrival.Delay.tf","class")
+airlinetf <- airlinesData68noNA[,-which(names(airlinesData68noNA) %in% vars.to.rm)]
+
+#Categorical variables transformed into sets of dummy variables
+airlineScaled <- cbind(satisfaction=airlinetf$satisfaction,
+                       as.data.frame(model.matrix(~.-satisfaction,airlinetf)[,-1]))
+
+#Min-max scaling
+varstobe.scaled <- c("Age", "Flight.Distance","Arrival.Delay.in.Minutes")
+airlineScaled[,varstobe.scaled] <- (airlineScaled[,varstobe.scaled]-min(airlineScaled[,varstobe.scaled]))/(max(airlineScaled[,varstobe.scaled])-min(airlineScaled[,varstobe.scaled]))
+
+#Simplify classes to Yes and No
+airlineScaled$satisfaction <- factor(ifelse(airlineScaled$satisfaction=="satisfied","Yes","No"))
+```
+
+For all classifiers below, the data is split into train and test sets with the 75:25 ratio and a random seed (10) set for reproducibility in R. Most models are trained on the training set using k-fold cross-validation where k is 10, which is chosen to keep a balance between bias and variance. The seed used for model training is 41. Finally, since there is only moderate class imbalance (Figure 1.1), resampling techniques to artificially balance the data like SMOTE are not used.
+```
+#Class imbalance plot
+fg <- airlinetf %>%
+  count(satisfaction) %>%
+  mutate(
+    perc = round(proportions(n) * 100, 1),
+    res = str_c(n, "(", perc, ")%"),
+    satisfaction = as.factor(satisfaction)
+  )
+
+ggplot(fg, aes(satisfaction, n, fill = satisfaction)) +
+  geom_col() +
+  geom_text(aes(label = res), vjust = -0.3) + ggtitle("Value counts of Target variable") +
+  labs(y="Count")
+```
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/classimbalance.png" alt="Class balance" width=800/>
+</p>
+<p align="center">Figure 5.1: Class balance</p>
+
 ### Logistic Regression
 ### k-NN
 ### Bagging
