@@ -527,6 +527,9 @@ airlineScaled[,varstobe.scaled] <- (airlineScaled[,varstobe.scaled]-min(airlineS
 
 #Simplify classes to Yes and No
 airlineScaled$satisfaction <- factor(ifelse(airlineScaled$satisfaction=="satisfied","Yes","No"))
+
+# Make sure that all variables are scaled correctly
+summary(airlineScaled)
 ```
 
 For all classifiers below, the data is split into train and test sets with the 75:25 ratio and a random seed (10) set for reproducibility in R. Most models are trained on the training set using k-fold cross-validation where k is 10, which is chosen to keep a balance between bias and variance. The seed used for model training is 41. Finally, since there is only moderate class imbalance (Figure 1.1), resampling techniques to artificially balance the data like SMOTE are not used.
@@ -551,6 +554,9 @@ ggplot(fg, aes(satisfaction, n, fill = satisfaction)) +
 <p align="center">Figure 5.1: Class balance</p>
 
 ### Logistic Regression
+The first multiple logistic regression model proposed has been created by first using the shrinkage method LASSO to select the most relevant variables from the pre-processed dataset. This model uses the hyper-parameter 𝜆 that best minimises Binomial Deviance, which has been found through 10-fold cross-validation. 
+
+Table 5.1 presents the outputs after applying LASSO regression. It appears that the probability of someone being a satisfied customer increases when they are either loyal to the brand, have flown in Business class, or have rated certain airline services highly, given that other predictors are held constant. On the other hand, this probability decreases if they have faced delays, rated services poorly, or have travelled for personal reasons. This aligns with the findings from the EDA.
 ### k-NN
 ### Bagging
 ### Random Forest
