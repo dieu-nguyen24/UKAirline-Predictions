@@ -522,8 +522,7 @@ airlineScaled <- cbind(satisfaction=airlinetf$satisfaction,
                        as.data.frame(model.matrix(~.-satisfaction,airlinetf)[,-1]))
 
 #Min-max scaling
-varstobe.scaled <- c("Age", "Flight.Distance","Arrival.Delay.in.Minutes")
-airlineScaled[,varstobe.scaled] <- (airlineScaled[,varstobe.scaled]-min(airlineScaled[,varstobe.scaled]))/(max(airlineScaled[,varstobe.scaled])-min(airlineScaled[,varstobe.scaled]))
+airlineScaled[, c("Flight.Distance","Arrival.Delay.in.Minutes", "Age")] <- lapply(airlineScaled[, c("Flight.Distance","Arrival.Delay.in.Minutes", "Age")], function(x) (x - min(x)) / (max(x) - min(x)))
 
 #Simplify classes to Yes and No
 airlineScaled$satisfaction <- factor(ifelse(airlineScaled$satisfaction=="satisfied","Yes","No"))
@@ -532,7 +531,20 @@ airlineScaled$satisfaction <- factor(ifelse(airlineScaled$satisfaction=="satisfi
 summary(airlineScaled)
 ```
 
-For all classifiers below, the data is split into train and test sets with the 75:25 ratio and a random seed (10) set for reproducibility in R. Most models are trained on the training set using k-fold cross-validation where k is 10, which is chosen to keep a balance between bias and variance. The seed used for model training is 41. Finally, since there is only moderate class imbalance (Figure 1.1), resampling techniques to artificially balance the data like SMOTE are not used.
+For all classifiers below, the data is split into train and test sets with the 75:25 ratio and a random seed (10) set for reproducibility in R. 
+```
+# Set a random seed for reproducibility
+set.seed(10)
+
+# All observations used in this workshop
+obsAll <- 9153
+
+# Split the data to 75%/25%
+trainSet <- sample(1:obsAll, round(0.75*obsAll))
+testSet <- (1:obsAll)[!(1:obsAll %in% trainSet)]
+```
+
+Most models are trained on the training set using k-fold cross-validation where k is 10, which is chosen to keep a balance between bias and variance. The seed used for model training is 41. Finally, since there is only moderate class imbalance (Figure 1.1), resampling techniques to artificially balance the data like SMOTE are not used.
 ```
 #Class imbalance plot
 fg <- airlinetf %>%
@@ -555,8 +567,36 @@ ggplot(fg, aes(satisfaction, n, fill = satisfaction)) +
 
 ### Logistic Regression
 The first multiple logistic regression model proposed has been created by first using the shrinkage method LASSO to select the most relevant variables from the pre-processed dataset. This model uses the hyper-parameter 𝜆 that best minimises Binomial Deviance, which has been found through 10-fold cross-validation. 
+```
+#LASSO for Logit
+grid <- 10^seq(10, -2, length = 100)
+
+lasso.fit <- glmnet(airlineScaled[trainSet,-1], airlineScaled[trainSet,1], alpha = 1,lambda = grid,family="binomial")
+
+set.seed(1)
+foldid <- sample(1:10, size = length(trainSet), replace = TRUE)
+print(foldid)
+
+lasso.cv.out <- cv.glmnet(as.matrix(airlineScaled[trainSet,-1]), as.matrix(airlineScaled[trainSet,1]), alpha = 1,foldid = foldid, nfolds = 10,family="binomial")
+
+lasso.bestlam <- lasso.cv.out$lambda.min
+
+lasso.coef.min <- predict(lasso.fit, type = "coefficients",s = lasso.bestlam)
+
+print(lasso.coef.min)
+```
 
 Table 5.1 presents the outputs after applying LASSO regression. It appears that the probability of someone being a satisfied customer increases when they are either loyal to the brand, have flown in Business class, or have rated certain airline services highly, given that other predictors are held constant. On the other hand, this probability decreases if they have faced delays, rated services poorly, or have travelled for personal reasons. This aligns with the findings from the EDA.
+
+Another candidate is the Logistic ‘Sink’ regression model which includes all variables in the pre- processed dataset. Since variable selection has already been done based on Part 1’s report to avoid multicollinearity, it makes sense to also include this model.
+```
+#SNK Logit
+SINKlogit <- glm(satisfaction ~ ., 
+                   data=airlineScaled,
+                   subset=trainSet,family = binomial)
+summary(SINKlogit)
+```
+
 ### k-NN
 ### Bagging
 ### Random Forest
