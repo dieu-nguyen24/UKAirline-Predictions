@@ -20,8 +20,7 @@ All processes are done using R.
 4. [Model Building](https://github.com/dieu-nguyen24/UKAirline-Predictions#model-building)
 * [Logistic Regression](https://github.com/dieu-nguyen24/UKAirline-Predictions#logistic-regression)
 * [k-NN](https://github.com/dieu-nguyen24/UKAirline-Predictions#k-nn)
-* [Bagging](https://github.com/dieu-nguyen24/UKAirline-Predictions#bagging)
-* [Random Forest](https://github.com/dieu-nguyen24/UKAirline-Predictions#random-forest)
+* [Tree-Based](https://github.com/dieu-nguyen24/UKAirline-Predictions#tree-based)
 5. [Performance Evaluation](https://github.com/dieu-nguyen24/UKAirline-Predictions#performance-evaluation)
 6. [References](https://github.com/dieu-nguyen24/UKAirline-Predictions#references)
 ## Dataset Used
@@ -588,7 +587,7 @@ print(lasso.coef.min)
 
 Table 5.1 presents the outputs after applying LASSO regression. It appears that the probability of someone being a satisfied customer increases when they are either loyal to the brand, have flown in Business class, or have rated certain airline services highly, given that other predictors are held constant. On the other hand, this probability decreases if they have faced delays, rated services poorly, or have travelled for personal reasons. This aligns with the findings from the EDA.
 
-Another candidate is the Logistic ‘Sink’ regression model which includes all variables in the pre- processed dataset. Since variable selection has already been done based on Part 1’s report to avoid multicollinearity, it makes sense to also include this model.
+Another candidate is the Logistic ‘Sink’ regression model which includes all variables in the pre-processed dataset. Since variable selection has already been done based on the EDA to avoid multicollinearity, it makes sense to also include this model.
 ```
 #SNK Logit
 SINKlogit <- glm(satisfaction ~ ., 
@@ -598,10 +597,38 @@ summary(SINKlogit)
 ```
 
 ### k-NN
-### Bagging
-### Random Forest
+To tune the k that performs best in terms of ROC, cross-validation on the train set with 10 folds and 3 repetitions for 10 k values has been performed. It has been found that this measure is highest when k is equal to 17 (Figure 1.2). However, 17-NN does not seem to meet the company’s goal regarding Sensitivity and Specificity according to Table 1.2. This is also true for other values of k, except for 5, 7, 9, and 11 in terms of Sensitivity.
+
+### Tree-Based
+In the development of Tree-based models, Decision Tree, Bagging, and Random Forest (RF) have been attempted. However, due to its lower accuracy and lack of robustness by nature (James et al., 2021), the details of the Decision Tree model are not discussed in this report.
+Similar to K-NN, the two ensemble approaches have been trained through cross-validation with 10 folds and 3 repetitions. Tables 1.3 and 1.4 display the training outputs. It is observed that the ROC value is highest for RF when the number of variables tried at each split (mtry) is 30. This final RF model also slightly outperforms Bagging regarding ROC, Sensitivity, and Specificity on the training set.
+
 ## Performance Evaluation
+For finding the model that most accurately predicts customer satisfaction for the company, the above-mentioned models are then evaluated and compared based on their performances on the same test set.
 ### Expected Generalisation Performance
+Even though all models seem to perform reasonably well on unseen data at the classification threshold of 0.5 given the relatively high measures of accuracy and association (Figures 2.1, 2.2, 2.4, 2.5, 2.6), there are certain differences worth noticing.
+
+In terms of the two Logistic regression models, their performances appear to be highly similar as there are only minuscule differences across the measures such as Accuracy and Phi (Figures 2.1 and 2.2). However, neither model meets the company’s target for Specificity at this threshold. To have the Specificity of 95% while keeping the Sensitivity of at least 90%, the threshold needs to be around 0.51 for the LASSO model and 0.52 for the Sink model according to their ROC curves (Figure 2.7). Despite this, Logit models are still less attractive compared to the other classifiers due to their inherent linear decision boundary in contrast with the more flexible decision boundaries of the other models as demonstrated in Figure 2.3.
+
+On the other hand, the 17-NN model seems to be the least promising as it does not meet the airline’s targets at any threshold level based on the ROC plot (Figure 2.7). It also has the weakest expected predictive performance across different measures derived from the confusion matrix (Figure 2.4).
+
+Notably, the best models come from the Tree-based method, with the clear winner being RF. As observed in Figures 2.5 and 2.6, Bagging and RF predicted the outcomes accurately for around 94.4% and 95.4% of the times respectively. Among the presented models, these two’s corresponding Phi values of 0.887 and 0.907 demonstrate the highest associations between the predicted and actual values. The proportions of satisfied customers that are correctly predicted out of all ‘positive’ predictions (Precision) are the largest for these models as well. Most importantly, Bagging and RF both meet the airline’s goal regarding Sensitivity and Specificity at the 0.5 threshold level, although the latter model is slightly better.
+
 ### TPR and TNR Trade-off
+The candidate models are then compared in the context of the trade-off between True Positive and True Negative Rates, with greater emphasis on the most promising model RF. The ROC curves of each model, which visualise the trade-off, are displayed in Figure 2.7. It is observed that as the threshold increases, the proportions of correctly identified dissatisfied customers for all models also increase, while the opposite is true for the proportions of correctly identified satisfied customers. In terms of AUC, the Tree-based approaches outperform all other models, showing strong class discrimination ability.
+
+Considering that the company’s specific targets for Sensitivity and Specificity are at least 90% and 95% respectively, the ideal threshold range that can achieve these for RF is around 0.43 and 0.62, which is approximately the area highlighted green in Figure 2.8. If the goal was to prioritise Specificity, then the upper thresholds would be preferred. Conversely, the lower thresholds would be better if the goal was only to maximise Sensitivity. However, overall performance should always be taken into consideration. This can be reflected in measures like Accuracy, Phi, and Kappa coefficients and these are maximised when the threshold is around 0.5 for RF (Table 2.1).
+
+Given its better expected overall performance, RF is chosen to be the final recommended model.
+
 ### Variable Importance
+The relative mean Gini index decrease for each variable in the dataset used to train RF is plotted in Figure 3.1. Based on its perfect Importance score, Business class is by far the most influential in predicting satisfaction. This aligns with the analysis in Part 1 as customers traveling in the airline’s Business class tend to have a more enjoyable flying experience. High ratings of services such as Inflight WIFI, Online boarding and Inflight entertainment, and Personal travel type along with Loyal customer type are other key predictors of satisfaction according to their relative importance values. From the plot, it is argued that Arrival delay, Inflight service, Onboard service, Baggage handling, Ease of online booking, Leg room service, Checkin service, Gate location, Cleanliness and Food & drink are the least important variables sets.
+
+It is then decided to retrain the RF model after removing these less important variables from the dataset to see whether they truly have minimal impact on the predictive performance of the model. Another reason for having fewer variables is to reduce model complexity and computational requirement. This new model is trained on the data with 22 predictors. The final number of variables tried at each split that maximises ROC is 12. Figure 3.2 presents the confusion matrix of the new RF model at the 0.5 threshold level. Notably, this model still meets the company’s requirements regarding Specificity and Sensitivity. In addition, the model’s level of accuracy and agreement between predicted vs. actual values are relatively high, indicating a sufficiently good classifier.
+
+### Conclusions
+- RF has consistently proven to be the most suitable predictive model among four other prospective approaches to help the airline predict customer satisfaction based on available data. Specifically, RF satisfies the required Specificity and Sensitivity of at least 95% and 90% respectively when the classification threshold is around 0.43 to 0.62.
+- Regarding expected generalisation performance, the RF model surpasses LASSO Logit, Sink Logit, 17-NN, and Bagging in terms of Accuracy, Phi, and AUC among other measures.
+- Only 21 out of 59 variables, which is actually 8 out of 16 sets of predictors, are needed to produce a sufficiently good classification model. This model trained on fewer variables has the clear advantage of reduced complexity for the user, while still meeting the TPR and TNR goals.
+
 ## References
