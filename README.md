@@ -616,11 +616,11 @@ knnTrain <- train(satisfaction~.,
 plot(knnTrain, main="ROC at different values of k")
 ```
 <p align="center">
-  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ROCknn.png" alt="ROC knn" width=500/>
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ROCknn.png" alt="ROC knn" width=600/>
 </p>
 <p align="center">Figure x.x: ROC values at different k neighbours</p>
 <p align="center">
-  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ROCinfo.png" alt="ROC info" width=500/>
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ROCinfo.png" alt="ROC info" width=300/>
 </p>
 <p align="center">Table x.x: Cross-validation results for different values of k</p>
 
