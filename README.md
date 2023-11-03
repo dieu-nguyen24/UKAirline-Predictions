@@ -586,10 +586,14 @@ print(lasso.coef.min)
 ```
 
 Table 5.1 presents the outputs after applying LASSO regression. It appears that the probability of someone being a satisfied customer increases when they are either loyal to the brand, have flown in Business class, or have rated certain airline services highly, given that other predictors are held constant. On the other hand, this probability decreases if they have faced delays, rated services poorly, or have travelled for personal reasons. This aligns with the findings from the EDA.
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/Lassologitsummary.png" alt="Lasso Logit" width=500/>
+</p>
+<p align="center">Table 5.1: Coefficients of the Logistic LASSO Regression Model</p>
 
 Another candidate is the Logistic ‘Sink’ regression model which includes all variables in the pre-processed dataset. Since variable selection has already been done based on the EDA to avoid multicollinearity, it makes sense to also include this model.
 ```
-#SNK Logit
+#SINK Logit
 SINKlogit <- glm(satisfaction ~ ., 
                    data=airlineScaled,
                    subset=trainSet,family = binomial)
@@ -598,6 +602,27 @@ summary(SINKlogit)
 
 ### k-NN
 To tune the k that performs best in terms of ROC, cross-validation on the train set with 10 folds and 3 repetitions for 10 k values has been performed. It has been found that this measure is highest when k is equal to 17 (Figure 1.2). However, 17-NN does not seem to meet the company’s goal regarding Sensitivity and Specificity according to Table 1.2. This is also true for other values of k, except for 5, 7, 9, and 11 in terms of Sensitivity.
+```
+#KNN
+# Set seed for reproducibility
+set.seed(41)
+# Control for cross validation
+knnTrainControl <- trainControl(method="repeatedcv", number=10,repeats=3, classProbs=TRUE,summaryFunction=twoClassSummary)
+
+set.seed(41)
+knnTrain <- train(satisfaction~., 
+                   data=airlineScaled, method="knn",preProcess="scale",
+                   subset=trainSet,trControl = knnTrainControl,metric="ROC", tuneLength=10)
+plot(knnTrain, main="ROC at different values of k")
+```
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ROCknn.png" alt="ROC knn" width=500/>
+</p>
+<p align="center">Figure x.x: ROC values at different k neighbours</p>
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ROCinfo.png" alt="ROC info" width=500/>
+</p>
+<p align="center">Table x.x: Cross-validation results for different values of k</p>
 
 ### Tree-Based
 In the development of Tree-based models, Decision Tree, Bagging, and Random Forest (RF) have been attempted. However, due to its lower accuracy and lack of robustness by nature (James et al., 2021), the details of the Decision Tree model are not discussed in this report.
