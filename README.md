@@ -61,6 +61,7 @@ Onboard (5 - totally satisfied, 1 - totally dissatisfied)
 * Clean: (satisfaction level of cleanliness; 0:NA; 1-5)
 ## Libraries used
 ```
+library(readr)
 library(greybox)
 library(lattice)
 library(Information)
@@ -80,8 +81,12 @@ library(naniar)
 library(visdat)
 library(Hmisc)
 library(moments)
-library(string)
+library(stringr)
 library(caret)
+library(ipred)
+library(themis)
+library(pROC)
+library(randomForest)
 ```
 ## Data Cleaning & Pre-Processing
 ### Data Cleaning
@@ -526,6 +531,9 @@ airlineScaled[, c("Flight.Distance","Arrival.Delay.in.Minutes", "Age")] <- lappl
 #Simplify classes to Yes and No
 airlineScaled$satisfaction <- factor(ifelse(airlineScaled$satisfaction=="satisfied","Yes","No"))
 
+#Make column names valid
+colnames(airlineScaled) <- make.names(colnames(airlineScaled))
+
 # Make sure that all variables are scaled correctly
 summary(airlineScaled)
 ```
@@ -536,7 +544,7 @@ For all classifiers below, the data is split into train and test sets with the 7
 set.seed(10)
 
 # All observations used in this workshop
-obsAll <- 9153
+obsAll <- nrow(airlineScaled)
 
 # Split the data to 75%/25%
 trainSet <- sample(1:obsAll, round(0.75*obsAll))
@@ -607,12 +615,13 @@ To tune the k that performs best in terms of ROC, cross-validation on the train 
 # Set seed for reproducibility
 set.seed(41)
 # Control for cross validation
-knnTrainControl <- trainControl(method="repeatedcv", number=10,repeats=3, classProbs=TRUE,summaryFunction=twoClassSummary)
+TrainControl <- trainControl(method="repeatedcv", number=10,repeats=3, classProbs=TRUE,summaryFunction=twoClassSummary)
 
 set.seed(41)
 knnTrain <- train(satisfaction~., 
                    data=airlineScaled, method="knn",preProcess="scale",
-                   subset=trainSet,trControl = knnTrainControl,metric="ROC", tuneLength=10)
+                   subset=trainSet,trControl = TrainControl,metric="ROC", tuneLength=10)
+
 plot(knnTrain, main="ROC at different values of k")
 ```
 <p align="center">
@@ -627,6 +636,25 @@ plot(knnTrain, main="ROC at different values of k")
 ### Tree-Based
 In the development of Tree-based models, Decision Tree, Bagging, and Random Forest (RF) have been attempted. However, due to its lower accuracy and lack of robustness by nature (James et al., 2021), the details of the Decision Tree model are not discussed in this report.
 Similar to K-NN, the two ensemble approaches have been trained through cross-validation with 10 folds and 3 repetitions. Tables 1.3 and 1.4 display the training outputs. It is observed that the ROC value is highest for RF when the number of variables tried at each split (mtry) is 30. This final RF model also slightly outperforms Bagging regarding ROC, Sensitivity, and Specificity on the training set.
+```
+#Train Bagging model
+set.seed(41)
+DTBagTrain <- train(satisfaction~., data=airlineScaled[trainSet,],method="treebag",trControl=TrainControl,metric="ROC")
+
+#Train Random Forest model
+set.seed(41)
+RFTrain <- train(satisfaction~., data=airlineScaled[trainSet,],method="rf",trControl=TrainControl,metric="ROC")
+```
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/baggingtrain.png" alt="Bagging train" width=300/>
+</p>
+<p align="center">Table x.x: Bagging’s resampling results</p>
+
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RFtrain.png" alt="RF train" width=300/>
+</p>
+<p align="center">Table x.x: RF’s resampling results across tuning parameters</p>
+
 
 ## Performance Evaluation
 For finding the model that most accurately predicts customer satisfaction for the company, the above-mentioned models are then evaluated and compared based on their performances on the same test set.
