@@ -662,6 +662,25 @@ For finding the model that most accurately predicts customer satisfaction for th
 Even though all models seem to perform reasonably well on unseen data at the classification threshold of 0.5 given the relatively high measures of accuracy and association (Figures 2.1, 2.2, 2.4, 2.5, 2.6), there are certain differences worth noticing.
 
 In terms of the two Logistic regression models, their performances appear to be highly similar as there are only minuscule differences across the measures such as Accuracy and Phi (Figures 2.1 and 2.2). However, neither model meets the company’s target for Specificity at this threshold. To have the Specificity of 95% while keeping the Sensitivity of at least 90%, the threshold needs to be around 0.51 for the LASSO model and 0.52 for the Sink model according to their ROC curves (Figure 2.7). Despite this, Logit models are still less attractive compared to the other classifiers due to their inherent linear decision boundary in contrast with the more flexible decision boundaries of the other models as demonstrated in Figure 2.3.
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/lassologit.cm.png" alt="lasso logit cm" width=600/>
+</p>
+<p align="center">Figure 2.1: LASSO Logit Model’s Confusion Matrix at 0.5 threshold</p>
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/sinklogit.cm.png" alt="sink logit cm" width=600/>
+</p>
+<p align="center">Figure 2.2: Sink Logit Model’s Confusion Matrix at 0.5 threshold</p>
+<p align="center">
+  <table>
+    <tr>
+      <td> <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/Bagthresholds.png"  alt="1"></td>
+      <td><img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RFthresholds.png" alt="2" ></td>
+     </tr> 
+     <tr>
+        <td><img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RFthresholds.wActuals.png" alt="3"></td>
+    </tr>
+  </table>
+<p align="center">Figure 2.3: Data (after MDS) split based on 17-NN (upper left); RF (upper right) & RF with black ‘satisfied’ points added (bottom left)</p>
 
 On the other hand, the 17-NN model seems to be the least promising as it does not meet the airline’s targets at any threshold level based on the ROC plot (Figure 2.7). It also has the weakest expected predictive performance across different measures derived from the confusion matrix (Figure 2.4).
 
