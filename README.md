@@ -683,8 +683,20 @@ In terms of the two Logistic regression models, their performances appear to be 
 <p align="center">Figure 2.3: Data (after MDS) split based on 17-NN (upper left); RF (upper right) & RF with black ‘satisfied’ points added (bottom left)</p>
 
 On the other hand, the 17-NN model seems to be the least promising as it does not meet the airline’s targets at any threshold level based on the ROC plot (Figure 2.7). It also has the weakest expected predictive performance across different measures derived from the confusion matrix (Figure 2.4).
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/17nn.cm.png" alt="knn cm" width=600/>
+</p>
+<p align="center">Figure 2.4: 17-NN’s Confusion Matrix at 0.5 threshold</p>
 
 Notably, the best models come from the Tree-based method, with the clear winner being RF. As observed in Figures 2.5 and 2.6, Bagging and RF predicted the outcomes accurately for around 94.4% and 95.4% of the times respectively. Among the presented models, these two’s corresponding Phi values of 0.887 and 0.907 demonstrate the highest associations between the predicted and actual values. The proportions of satisfied customers that are correctly predicted out of all ‘positive’ predictions (Precision) are the largest for these models as well. Most importantly, Bagging and RF both meet the airline’s goal regarding Sensitivity and Specificity at the 0.5 threshold level, although the latter model is slightly better.
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/bagging.cm.png" alt="bagging cm" width=600/>
+</p>
+<p align="center">Figure 2.5: Bagging’s Confusion Matrix at 0.5 threshold</p>
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RF.cm.png" alt="RF cm" width=600/>
+</p>
+<p align="center">Figure 2.6: RF’s Confusion Matrix at 0.5 threshold (mtry=30)</p>
 
 ### TPR and TNR Trade-off
 The candidate models are then compared in the context of the trade-off between True Positive and True Negative Rates, with greater emphasis on the most promising model RF. The ROC curves of each model, which visualise the trade-off, are displayed in Figure 2.7. It is observed that as the threshold increases, the proportions of correctly identified dissatisfied customers for all models also increase, while the opposite is true for the proportions of correctly identified satisfied customers. In terms of AUC, the Tree-based approaches outperform all other models, showing strong class discrimination ability.
