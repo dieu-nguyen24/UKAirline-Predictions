@@ -700,8 +700,16 @@ Notably, the best models come from the Tree-based method, with the clear winner 
 
 ### TPR and TNR Trade-off
 The candidate models are then compared in the context of the trade-off between True Positive and True Negative Rates, with greater emphasis on the most promising model RF. The ROC curves of each model, which visualise the trade-off, are displayed in Figure 2.7. It is observed that as the threshold increases, the proportions of correctly identified dissatisfied customers for all models also increase, while the opposite is true for the proportions of correctly identified satisfied customers. In terms of AUC, the Tree-based approaches outperform all other models, showing strong class discrimination ability.
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ROCcurves.ofall.png" alt="ROC curves" width=800/>
+</p>
+<p align="center">Figure 2.7: ROC curves of all candidate models</p>
 
 Considering that the company’s specific targets for Sensitivity and Specificity are at least 90% and 95% respectively, the ideal threshold range that can achieve these for RF is around 0.43 and 0.62, which is approximately the area highlighted green in Figure 2.8. If the goal was to prioritise Specificity, then the upper thresholds would be preferred. Conversely, the lower thresholds would be better if the goal was only to maximise Sensitivity. However, overall performance should always be taken into consideration. This can be reflected in measures like Accuracy, Phi, and Kappa coefficients and these are maximised when the threshold is around 0.5 for RF (Table 2.1).
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RF.ROCcurve.png" alt="RF ROC" width=600/>
+</p>
+<p align="center">Figure 2.8: ROC curve of RF</p>
 
 Given its better expected overall performance, RF is chosen to be the final recommended model.
 
