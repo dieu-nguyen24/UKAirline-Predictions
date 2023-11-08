@@ -17,10 +17,12 @@ All processes are done using R.
 * [Information Values](https://github.com/dieu-nguyen24/UKAirline-Predictions#information-values)
 * [Correlation Analysis](https://github.com/dieu-nguyen24/UKAirline-Predictions#correlation-analysis)
 * [Common Characteristics of Passengers](https://github.com/dieu-nguyen24/UKAirline-Predictions#common-characteristics-of-passengers)
+* [Conclusions from EDA](https://github.com/dieu-nguyen24/UKAirline-Predictions#conclusions-from-eda)
 4. [Model Building](https://github.com/dieu-nguyen24/UKAirline-Predictions#model-building)
 * [Logistic Regression](https://github.com/dieu-nguyen24/UKAirline-Predictions#logistic-regression)
 * [k-NN](https://github.com/dieu-nguyen24/UKAirline-Predictions#k-nn)
 * [Tree-Based](https://github.com/dieu-nguyen24/UKAirline-Predictions#tree-based)
+* [Conclusions from Modelling](https://github.com/dieu-nguyen24/UKAirline-Predictions#conclusions-from-modelling)
 5. [Performance Evaluation](https://github.com/dieu-nguyen24/UKAirline-Predictions#performance-evaluation)
 6. [References](https://github.com/dieu-nguyen24/UKAirline-Predictions#references)
 ## Dataset Used
@@ -1004,9 +1006,10 @@ draw_confusion_matrix(rfcm.new, "(mtry=12) Random forest")
 </p>
 <p align="center">Figure 7.2: RF’s Confusion Matrix with mtry = 12</p>
 
-### Conclusions
+### Conclusions from Modelling
 - RF has consistently proven to be the most suitable predictive model among four other prospective approaches to help the airline predict customer satisfaction based on available data. Specifically, RF satisfies the required Specificity and Sensitivity of at least 95% and 90% respectively when the classification threshold is around 0.43 to 0.62.
 - Regarding expected generalisation performance, the RF model surpasses LASSO Logit, Sink Logit, 17-NN, and Bagging in terms of Accuracy, Phi, and AUC among other measures.
 - Only 21 out of 59 variables, which is actually 8 out of 16 sets of predictors, are needed to produce a sufficiently good classification model. This model trained on fewer variables has the clear advantage of reduced complexity for the user, while still meeting the TPR and TNR goals.
 
 ## References
+James, G. et al. (2021) An introduction to statistical learning: With applications in R. Boston: Springer.
