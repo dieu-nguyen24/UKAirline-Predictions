@@ -659,17 +659,113 @@ RFTrain <- train(satisfaction~., data=airlineScaled[trainSet,],method="rf",trCon
 ## Performance Evaluation
 For finding the model that most accurately predicts customer satisfaction for the company, the above-mentioned models are then evaluated and compared based on their performances on the same test set.
 ### Expected Generalisation Performance
-Even though all models seem to perform reasonably well on unseen data at the classification threshold of 0.5 given the relatively high measures of accuracy and association (Figures 2.1, 2.2, 2.4, 2.5, 2.6), there are certain differences worth noticing.
+```
+draw_confusion_matrix <- function(cm,title) {
+  
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2))
+  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title(paste0(toupper(title), "'S CONFUSION MATRIX"), cex.main=2)
+  
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#3F97D0')
+  text(195, 435, 'No', cex=1.2)
+  rect(250, 430, 340, 370, col='#F7AD50')
+  text(295, 435, 'Yes', cex=1.2)
+  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Reference', cex=1.3, font=2)
+  rect(150, 305, 240, 365, col='#F7AD50')
+  rect(250, 305, 340, 365, col='#3F97D0')
+  text(140, 400, 'No', cex=1.2, srt=90)
+  text(140, 335, 'Yes', cex=1.2, srt=90)
+  
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+  
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  text(5, 85, names(cm$byClass[1]), cex=1.2, font=2)
+  text(5, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
+  text(20, 85, names(cm$byClass[2]), cex=1.2, font=2)
+  text(20, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
+  text(40, 85, names(cm$byClass[5]), cex=1.2, font=2)
+  text(40, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
+  text(60, 85, names(cm$byClass[6]), cex=1.2, font=2)
+  text(60, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
+  text(75, 85, names(cm$byClass[7]), cex=1.2, font=2)
+  text(75, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+  text(90, 85, names(cm$byClass[11]), cex=1.2, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[11]), 3), cex=1.2)
+  
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
+  text(70, 35, "Phi", cex=1.5, font=2)
+  text(70, 20, round((res[1]*res[4] - res[3]*res[2]) / sqrt(prod(c(res[1]+res[3], res[2]+res[4], res[1]+res[2], res[3]+res[4]))), 3), cex=1.4)
+}
+```
 
-In terms of the two Logistic regression models, their performances appear to be highly similar as there are only minuscule differences across the measures such as Accuracy and Phi (Figures 2.1 and 2.2). However, neither model meets the company’s target for Specificity at this threshold. To have the Specificity of 95% while keeping the Sensitivity of at least 90%, the threshold needs to be around 0.51 for the LASSO model and 0.52 for the Sink model according to their ROC curves (Figure 2.7). Despite this, Logit models are still less attractive compared to the other classifiers due to their inherent linear decision boundary in contrast with the more flexible decision boundaries of the other models as demonstrated in Figure 2.3.
+In terms of the two Logistic regression models, their performances appear to be highly similar as there are only minuscule differences across the measures such as Accuracy and Phi (Figures 2.1 and 2.2). However, neither model meets the company’s target for Specificity at the 0.5 threshold. To have the Specificity of 95% while keeping the Sensitivity of at least 90%, the threshold needs to be around 0.51 for the LASSO model and 0.52 for the Sink model according to their ROC curves (Figure 2.7). Despite this, Logit models are still less attractive compared to the other classifiers due to their inherent linear decision boundary in contrast with the more flexible decision boundaries of the other models as demonstrated in Figure 2.3.
+```
+LASSOlogit <- predict(lasso.fit,s = lasso.bestlam,newx = as.matrix(airlineScaled[testSet,-1]),type="response")
+# Threshold
+threshold <- 0.5
+# Classification
+(LASSOlogit>threshold) |>factor(levels=c(FALSE,TRUE), labels=c("No","Yes")) -> LASSOlogitPredictClass
+
+lacm <- confusionMatrix(LASSOlogitPredictClass, airlineScaled[testSet,1] ,positive="Yes")
+draw_confusion_matrix(lacm, "lasso logit")
+```
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/lassologit.cm.png" alt="lasso logit cm" width=600/>
 </p>
 <p align="center">Figure 2.1: LASSO Logit Model’s Confusion Matrix at 0.5 threshold</p>
+
+```
+SINKlogit <- glm(satisfaction ~ ., 
+                   data=airlineScaled,
+                   subset=trainSet,family = binomial)
+SINKlogitPredict <- predict(SINKlogit,newdata=airlineScaled[testSet,],type="response")
+(SINKlogitPredict>threshold) |>factor(levels=c(FALSE,TRUE), labels=c("No","Yes")) -> SinklogitModelPredictClass
+sicm <- confusionMatrix(SinklogitModelPredictClass,airlineScaled$satisfaction[testSet],positive="Yes")
+draw_confusion_matrix(sicm, "sink logit")
+```
+
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/sinklogit.cm.png" alt="sink logit cm" width=600/>
 </p>
 <p align="center">Figure 2.2: Sink Logit Model’s Confusion Matrix at 0.5 threshold</p>
+
+```
+airlineScaled_wMDS <- cbind(airlineScaled, allMDS)
+airlineScaled_wMDS$D1 <- (airlineScaled_wMDS$D1-min(airlineScaled_wMDS$D1)) /(max(airlineScaled_wMDS$D1)-min(airlineScaled_wMDS$D1))
+airlineScaled_wMDS$D2 <- (airlineScaled_wMDS$D2-min(airlineScaled_wMDS$D2)) /(max(airlineScaled_wMDS$D2)-min(airlineScaled_wMDS$D2))
+airlineScaled_wMDS$satisfaction1 <- ifelse(airlineScaled_wMDS$satisfaction=="Yes", 1,0)
+
+RFPredictz <- predict(RFTrain, newdata=airlineScaled_wMDS,type="prob")
+BagPredictz <- predict(DTBagTrain, newdata=airlineScaled_wMDS,type="prob")
+thresholdValues <- c(0.1, 0.3, 0.5, 0.9)
+plot.thresholds <- function(pred,data,thresholdValues){
+  par(mfrow=c(2,2))
+  for(i in 1:4){
+    z <- data$satisfaction=="Yes"
+
+    plot(data$D1[z==0], data$D2[z==0],col="grey", xlab="D1", ylab="D2",main=paste0("Threshold of ",thresholdValues[i]))
+
+    x <- (pred[,2]>thresholdValues[i])*1
+    points(data$D1, data$D2,col=c(rgb(0.5,0.5,0.9,0.5), rgb(0.9,0.5,0.5,0.5))[x+1], pch=20)
+    #Add actual "Yes" values
+    # points(data$D1[z==1], data$D2[z==1],col=rgb(0,0,0,0.35))
+  }
+}
+plot.thresholds(RFPredictz, airlineScaled_wMDS, thresholdValues)
+plot.thresholds(BagPredictz, airlineScaled_wMDS, thresholdValues)
+```
+
 <p align="center">
   <table>
     <tr>
@@ -683,16 +779,41 @@ In terms of the two Logistic regression models, their performances appear to be 
 <p align="center">Figure 2.3: Data (after MDS) split based on 17-NN (upper left); RF (upper right) & RF with black ‘satisfied’ points added (bottom left)</p>
 
 On the other hand, the 17-NN model seems to be the least promising as it does not meet the airline’s targets at any threshold level based on the ROC plot (Figure 2.7). It also has the weakest expected predictive performance across different measures derived from the confusion matrix (Figure 2.4).
+```
+knnModelPredict <- predict(knnTrain, newdata=airlineScaled[testSet,],type="raw")
+knnModelPredictProb <- predict(knnTrain, newdata=airlineScaled[testSet,],type="prob")
+knncm <- confusionMatrix(knnModelPredict,as.factor(airlineScaled$satisfaction[testSet]),positive="Yes")
+draw_confusion_matrix(knncm, "17-NN")
+```
+
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/17nn.cm.png" alt="knn cm" width=600/>
 </p>
 <p align="center">Figure 2.4: 17-NN’s Confusion Matrix at 0.5 threshold</p>
 
 Notably, the best models come from the Tree-based method, with the clear winner being RF. As observed in Figures 2.5 and 2.6, Bagging and RF predicted the outcomes accurately for around 94.4% and 95.4% of the times respectively. Among the presented models, these two’s corresponding Phi values of 0.887 and 0.907 demonstrate the highest associations between the predicted and actual values. The proportions of satisfied customers that are correctly predicted out of all ‘positive’ predictions (Precision) are the largest for these models as well. Most importantly, Bagging and RF both meet the airline’s goal regarding Sensitivity and Specificity at the 0.5 threshold level, although the latter model is slightly better.
+```
+DTBagPredict <- predict(DTBagTrain, newdata=airlineScaled[testSet,],type="raw")
+DTBagPredictProb <- predict(DTBagTrain, newdata=airlineScaled[testSet,],type="prob")
+bgcm <- confusionMatrix(DTBagPredict,airlineScaled$satisfaction[testSet], positive="Yes")
+draw_confusion_matrix(bgcm, "bagging")
+```
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/bagging.cm.png" alt="bagging cm" width=600/>
 </p>
 <p align="center">Figure 2.5: Bagging’s Confusion Matrix at 0.5 threshold</p>
+
+```
+#RF model's confusion matrix
+RFProbabilities <- predict(RFTrain, newdata=airlineScaled[testSet,],type="prob")
+# Adjust the predicted class based on the set threshold
+RFPredict <- ifelse(RFProbabilities[, "Yes"] > threshold, "Yes", "No")
+# Convert the predicted class labels to a factor with the same levels as the true class labels
+RFPredict <- factor(RFPredict, levels = levels(airlineScaled$satisfaction))
+RFPredictProb <- predict(RFTrain, newdata=airlineScaled[testSet,],type="prob")
+rfcm <- confusionMatrix(RFPredict, airlineScaled$satisfaction[testSet], positive = "Yes")
+draw_confusion_matrix(rfcm, "Random Forest")
+```
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RF.cm.png" alt="RF cm" width=600/>
 </p>
@@ -700,16 +821,89 @@ Notably, the best models come from the Tree-based method, with the clear winner 
 
 ### TPR and TNR Trade-off
 The candidate models are then compared in the context of the trade-off between True Positive and True Negative Rates, with greater emphasis on the most promising model RF. The ROC curves of each model, which visualise the trade-off, are displayed in Figure 2.7. It is observed that as the threshold increases, the proportions of correctly identified dissatisfied customers for all models also increase, while the opposite is true for the proportions of correctly identified satisfied customers. In terms of AUC, the Tree-based approaches outperform all other models, showing strong class discrimination ability.
+```
+rocCurves <- vector("list", 5)
+# We only need the second column for the purposes of the analysis
+rocCurves[[1]] <- roc(airlineScaled$satisfaction[testSet] ~ knnModelPredictProb[,2])
+rocCurves[[2]] <- roc(airlineScaled$satisfaction[testSet] ~ SINKlogitPredict)
+rocCurves[[3]] <- roc(airlineScaled$satisfaction[testSet] ~ LASSOlogit)
+rocCurves[[4]] <- roc(airlineScaled$satisfaction[testSet] ~ DTBagPredictProb[,2])
+rocCurves[[5]] <- roc(airlineScaled$satisfaction[testSet] ~ RFPredictProb[,2])
+names(rocCurves) <- c("17-NN","Sink Logit", "LASSO Logit", "DTBag", "RF")
+par(mfrow=c(3,2))
+for(i in 1:5){
+  # Plot each of the ROC curves
+  plot(rocCurves[[i]], print.auc=TRUE, auc.polygon=TRUE,mar=c(4,4,0,0), grid=TRUE)
+  # Add titles to plots
+  text(1.1, 0.9, names(rocCurves)[i])
+}
+```
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ROCcurves.ofall.png" alt="ROC curves" width=800/>
 </p>
 <p align="center">Figure 2.7: ROC curves of all candidate models</p>
 
-Considering that the company’s specific targets for Sensitivity and Specificity are at least 90% and 95% respectively, the ideal threshold range that can achieve these for RF is around 0.43 and 0.62, which is approximately the area highlighted green in Figure 2.8. If the goal was to prioritise Specificity, then the upper thresholds would be preferred. Conversely, the lower thresholds would be better if the goal was only to maximise Sensitivity. However, overall performance should always be taken into consideration. This can be reflected in measures like Accuracy, Phi, and Kappa coefficients and these are maximised when the threshold is around 0.5 for RF (Table 2.1).
+Considering that the company’s specific targets for Sensitivity and Specificity are at least 90% and 95% respectively, the ideal threshold range that can achieve these for RF is around 0.43 and 0.62, which is approximately the area highlighted green in Figure 2.8. If the goal was to prioritise Specificity, then the upper thresholds would be preferred. Conversely, the lower thresholds would be better if the goal was only to maximise Sensitivity. However, overall performance should always be taken into consideration. This can be reflected in measures like Accuracy & Phi coefficients and these are maximised when the threshold is around 0.5 for RF (Table 2.1).
+```
+rocObj <- roc(airlineScaled$satisfaction[testSet] ~ RFPredictProb[,2])
+roc_df <- data.frame(spec = rocObj$specificities, sen = rocObj$sensitivities, threshold = rocObj$thresholds)
+# Plot ROC curve with different thresholds
+ggplot(roc_df, aes(x = spec, y = sen)) +
+  geom_line() +
+  geom_abline(intercept = 1, slope = 1, linetype = "dashed") +
+  geom_point(aes(color = threshold), size = 2) +
+  scale_color_gradientn(colors = c("hotpink", "green", "blue"), limits = c(0, 1), na.value = NA) +
+  ggtitle("Random Forest's ROC Curve") +
+  xlab("Specificity") +
+  ylab("Sensitivity") + xlim(1,0)
+```
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RF.ROCcurve.png" alt="RF ROC" width=600/>
 </p>
 <p align="center">Figure 2.8: ROC curve of RF</p>
+
+```
+#Define threshold levels
+thresholds <- c(0.1, 0.3, 0.5, 0.9)
+
+#Empty data frame to store results
+result_table <- data.frame(
+  Threshold = thresholds,
+  Sensitivity = numeric(length(thresholds)),
+  Specificity = numeric(length(thresholds)),
+  Accuracy = numeric(length(thresholds)),
+  Phi = numeric(length(thresholds))
+)
+
+for (i in 1:length(thresholds)) {
+  threshold1 <- thresholds[i]
+  
+  #Adjust the predicted class based on the custom threshold
+  RFPredict1 <- ifelse(RFProbabilities[, "Yes"] > threshold1, "Yes", "No")
+  
+  #Convert the predicted class labels to a factor with the same levels as the true class labels
+  RFPredict1 <- factor(RFPredict1, levels = levels(airlineScaled$satisfaction))
+  
+  #Calculate confusion matrix
+  rfcm1 <- confusionMatrix(RFPredict1, airlineScaled$satisfaction[testSet], positive = "Yes")
+  
+  #Store performance metrics in the result table
+  result_table[i, "Sensitivity"] <- round(rfcm1[["byClass"]][["Sensitivity"]], 3)
+  result_table[i, "Specificity"] <- round(rfcm1[["byClass"]][["Specificity"]], 3)
+  result_table[i, "Accuracy"] <- round(rfcm1[["overall"]][["Accuracy"]], 3)
+  result_table[i, "Phi"] <- round((rfcm1$table[1]*rfcm1$table[4] - rfcm1$table[3]*rfcm1$table[2]) / 
+                                    sqrt(prod(c(rfcm1$table[1]+rfcm1$table[3], 
+                                                rfcm1$table[2]+rfcm1$table[4], 
+                                                rfcm1$table[1]+rfcm1$table[2], 
+                                                rfcm1$table[3]+rfcm1$table[4]))), 3)
+}
+
+print(result_table)
+```
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RFmetrics.diffthres.png" alt="RF performance" width=400/>
+</p>
+<p align="center">Table 2.1: Performance measures of RF at different thresholds</p>
 
 Given its better expected overall performance, RF is chosen to be the final recommended model.
 
@@ -717,6 +911,35 @@ Given its better expected overall performance, RF is chosen to be the final reco
 The relative mean Gini index decrease for each variable in the dataset used to train RF is plotted in Figure 3.1. Based on its perfect Importance score, Business class is by far the most influential in predicting satisfaction. This aligns with the analysis in Part 1 as customers traveling in the airline’s Business class tend to have a more enjoyable flying experience. High ratings of services such as Inflight WIFI, Online boarding and Inflight entertainment, and Personal travel type along with Loyal customer type are other key predictors of satisfaction according to their relative importance values. From the plot, it is argued that Arrival delay, Inflight service, Onboard service, Baggage handling, Ease of online booking, Leg room service, Checkin service, Gate location, Cleanliness and Food & drink are the least important variables sets.
 
 It is then decided to retrain the RF model after removing these less important variables from the dataset to see whether they truly have minimal impact on the predictive performance of the model. Another reason for having fewer variables is to reduce model complexity and computational requirement. This new model is trained on the data with 22 predictors. The final number of variables tried at each split that maximises ROC is 12. Figure 3.2 presents the confusion matrix of the new RF model at the 0.5 threshold level. Notably, this model still meets the company’s requirements regarding Specificity and Sensitivity. In addition, the model’s level of accuracy and agreement between predicted vs. actual values are relatively high, indicating a sufficiently good classifier.
+```
+varImp(RFTrain) |> plot()
+```
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RF.varimp.png" alt="Varimp" width=700/>
+</p>
+<p align="center">Figure 3.1: Variable importance from RF</p>
+
+```
+#Retrain RF model now with only high importance variables
+lowimp.var <- c("Arrival.Delay.in.Minutes", grep("Inflight.service|On.board.service|Baggage.handling|Ease.of.Online.booking|Leg.room.service|Checkin.service|Gate.location|Cleanliness|Food.and.drink", names(airlineScaled), value = TRUE))
+set.seed(41)
+RFTrain.new <- train(satisfaction~., data=airlineScaled[trainSet,-which(names(airlineScaled) %in% lowimp.var)],method="rf",trControl=TrainControl,metric="ROC")
+RFTrain.new
+
+#RF model's confusion matrix
+RFProbabilities.new <- predict(RFTrain.new, newdata=airlineScaled[testSet,-which(names(airlineScaled) %in% lowimp.var)],type="prob")
+# Adjust the predicted class based on the custom threshold
+RFPredict.new <- ifelse(RFProbabilities.new[, "Yes"] > threshold, "Yes", "No")
+# Convert the predicted class labels to a factor with the same levels as the true class labels
+RFPredict.new <- factor(RFPredict.new, levels = levels(airlineScaled$satisfaction))
+rfcm.new <- confusionMatrix(RFPredict.new, airlineScaled$satisfaction[testSet], positive = "Yes")
+
+draw_confusion_matrix(rfcm.new, "(mtry=12) Random forest")
+```
+<p align="center">
+  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/mtry12.rfcm.png" alt="RF mtry12" width=600/>
+</p>
+<p align="center">Figure 3.2: RF’s Confusion Matrix with mtry = 12</p>
 
 ### Conclusions
 - RF has consistently proven to be the most suitable predictive model among four other prospective approaches to help the airline predict customer satisfaction based on available data. Specifically, RF satisfies the required Specificity and Sensitivity of at least 95% and 90% respectively when the classification threshold is around 0.43 to 0.62.
