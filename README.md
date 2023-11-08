@@ -468,7 +468,7 @@ From the general understanding of the clusters, a possible name for D1 could be 
   </table>
 <p align="center">Figure 4.9: Separability of ratings for different inflight aspects</p>
 
-D2 is less clear to interpret compared to D1. LASSO regression is then performed to find the combination of variables that best explain this dimension. This method is favoured over stepwise because it is better for variable selection given the high-dimensional nature of the dataset and can avoid the risk of overfitting (James et al., 2021). From the model output in Figure 4.10, it seems that people who gave 4/5 ratings for the listed onboard services are more associated with the upper area of the MDS plot, which is consistent with previous cluster analysis. One possible interpretation of D2 could be ‘Level of criticalness’ in terms of service evaluations.
+D2 is less clear to interpret compared to D1. LASSO regression is then performed to find the combination of variables that best explain this dimension. This method is favoured over stepwise because it is better for variable selection given the high-dimensional nature of the dataset and can avoid the risk of overfitting (James et al., 2021). From the model output in Table 4.1, it seems that people who gave 4/5 ratings for the listed onboard services are more associated with the upper area of the MDS plot, which is consistent with previous cluster analysis. One possible interpretation of D2 could be ‘Level of criticalness’ in terms of service evaluations.
 ```
 #LASSO D2
 x <- model.matrix(D2~., airlinesData68New[,-c(3,24,26:28)])[, -c(1,2)]
@@ -485,29 +485,47 @@ y.test <- y[test]
 grid <- 10^seq(10, -2, length = 100) #grid to tune lambda
 
 # estimate lasso regression for each lambda
-lasso.fit <- glmnet(x[train,], y[train], alpha = 1,
+lasso.fit.d2 <- glmnet(x[train,], y[train], alpha = 1,
                     lambda = grid)
 set.seed(1)
-foldid <- sample(1:10, size = length(train), replace = TRUE)
-print(foldid)
+foldid.d2 <- sample(1:10, size = length(train), replace = TRUE)
+print(foldid.d2)
 
 #perform Cross validation
 lasso.cv.out <- cv.glmnet(x[train,], y[train], alpha = 1,
-                          foldid = foldid, nfolds = 10)
+                          foldid.d2 = foldid.d2, nfolds = 10)
 
 lasso.bestlam <- lasso.cv.out$lambda.min
 print(lasso.bestlam)
 
-lasso.coef.min <- predict(lasso.fit, type = "coefficients",
+lasso.coef.min.d2 <- predict(lasso.fit, type = "coefficients",
                           s = lasso.bestlam)
-print(lasso.coef.min)
+print(lasso.coef.min.d2)
 ```
-<p align="center">
-  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/lassoD2.png" alt="Lasso" width=300/>
-</p>
-<p align="center">Figure 4.10: Summary of LASSO regression model</p>
+| Variable                   | Coefficient  |
+|----------------------------|--------------|
+| (Intercept)                | 0.002326151  |
+| Inflight.wifi.service4     | 0.028317078  |
+| Food.and.drink4            | 0.033312829  |
+| Food.and.drink5            | -0.033345533 |
+| Online.boarding4           | 0.017492974  |
+| Online.boarding5           | -0.022838466 |
+| Seat.comfort4              | 0.029712154  |
+| Seat.comfort5              | -0.045635271 |
+| Inflight.entertainment4    | 0.077139192  |
+| Inflight.entertainment5    | -0.09074369  |
+| On.board.service4          | 0.021729611  |
+| On.board.service5          | -0.036048701 |
+| Leg.room.service4          | 0.009233937  |
+| Leg.room.service5          | -0.028928734 |
+| Baggage.handling4          | 0.022832954  |
+| Baggage.handling5          | -0.043801956 |
+| Cleanliness4               | 0.035958715  |
+| Cleanliness5               | -0.038940208  |
 
-### Conclusions
+Table 4.1: Summary of LASSO regression model
+
+### Conclusions from EDA
 - The variables with the strongest predictive power over passenger satisfaction are ‘Online boarding’, ‘Class’ and those that contribute toward overall inflight enjoyment such as ‘Inflight WIFI service’, ‘Inflight entertainment’ and ‘Seat comfort’.
 - Regarding the relations between variables, pairs of variables that convey similar information with respect to the target variable are ‘Arrival vs. Departure Delay’ and ‘Class’ vs. ‘Type of Travel’. ‘Inflight service’ has also been found to be quite redundant. Multicollinearity could be a problem for the final task of building a predictive model if such pairs are not handled properly.
 - Three similar groups of customers are detected from the use of MDS and clustering. For one segment, the most common characteristics can be viewed as the tendency to travel in Economy class and having lower inflight enjoyment. The other two are characterised by their more premium ticket class and higher level of inflight satisfaction.
@@ -551,7 +569,7 @@ trainSet <- sample(1:obsAll, round(0.75*obsAll))
 testSet <- (1:obsAll)[!(1:obsAll %in% trainSet)]
 ```
 
-Most models are trained on the training set using k-fold cross-validation where k is 10, which is chosen to keep a balance between bias and variance. The seed used for model training is 41. Finally, since there is only moderate class imbalance (Figure 1.1), resampling techniques to artificially balance the data like SMOTE are not used.
+Most models are trained on the training set using k-fold cross-validation where k is 10, which is chosen to keep a balance between bias and variance. The seed used for model training is 41. Finally, since there is only moderate class imbalance (Figure 5.1), resampling techniques to artificially balance the data like SMOTE are not used.
 ```
 #Class imbalance plot
 fg <- airlinetf %>%
@@ -594,10 +612,37 @@ print(lasso.coef.min)
 ```
 
 Table 5.1 presents the outputs after applying LASSO regression. It appears that the probability of someone being a satisfied customer increases when they are either loyal to the brand, have flown in Business class, or have rated certain airline services highly, given that other predictors are held constant. On the other hand, this probability decreases if they have faced delays, rated services poorly, or have travelled for personal reasons. This aligns with the findings from the EDA.
-<p align="center">
-  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/Lassologitsummary.png" alt="Lasso Logit" width=500/>
-</p>
-<p align="center">Table 5.1: Coefficients of the Logistic LASSO Regression Model</p>
+
+| Feature                        | Coefficient |
+|--------------------------------|-------------|
+| Intercept                       | -3.89363026 |
+| Customer.Type: Loyal.Customer   | 2.04760511  |
+| Type.of.Travel: Personal.Travel | -2.85260439 |
+| Class: Business                 | 0.69175085  |
+| Inflight.wifi.service: 2        | -0.03753753 |
+| Inflight.wifi.service: 4        | 0.71721679  |
+| Inflight.wifi.service: 5        | 3.49051151  |
+| Gate.location: 5                | -0.28279392 |
+| Online.boarding: 3              | -0.30089333 |
+| Online.boarding: 4              | 1.20216516  |
+| Online.boarding: 5              | 2.12646627  |
+| Seat.comfort: 3                | -0.16634124 |
+| Seat.comfort: 5                | 0.36095349  |
+| Inflight.entertainment: 4       | 0.51724818  |
+| On.board.service: 4            | 0.11840297  |
+| On.board.service: 5            | 0.52970474  |
+| Leg.room.service: 4            | 0.80656275  |
+| Leg.room.service: 5            | 0.84231757  |
+| Baggage.handling: 3            | -0.40370598 |
+| Baggage.handling: 5            | 0.44077277  |
+| Checkin.service: 2             | -0.22219195 |
+| Checkin.service: 5             | 0.42751915  |
+| Inflight.service: 3            | -0.12849457 |
+| Inflight.service: 5            | 0.48689996  |
+| Cleanliness: 5                | 0.09553912  |
+| Arrival.Delay.in.Minutes        | -0.45926946 |
+
+Table 5.1: Coefficients of the Logistic LASSO Regression Model
 
 Another candidate is the Logistic ‘Sink’ regression model which includes all variables in the pre-processed dataset. Since variable selection has already been done based on the EDA to avoid multicollinearity, it makes sense to also include this model.
 ```
@@ -609,7 +654,7 @@ summary(SINKlogit)
 ```
 
 ### k-NN
-To tune the k that performs best in terms of ROC, cross-validation on the train set with 10 folds and 3 repetitions for 10 k values has been performed. It has been found that this measure is highest when k is equal to 17 (Figure 1.2). However, 17-NN does not seem to meet the company’s goal regarding Sensitivity and Specificity according to Table 1.2. This is also true for other values of k, except for 5, 7, 9, and 11 in terms of Sensitivity.
+To tune the k that performs best in terms of ROC, cross-validation on the train set with 10 folds and 3 repetitions for 10 k values has been performed. It has been found that this measure is highest when k is equal to 17 (Figure 5.2).
 ```
 #KNN
 # Set seed for reproducibility
@@ -627,11 +672,24 @@ plot(knnTrain, main="ROC at different values of k")
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ROCknn.png" alt="ROC knn" width=600/>
 </p>
-<p align="center">Figure x.x: ROC values at different k neighbours</p>
-<p align="center">
-  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ROCinfo.png" alt="ROC info" width=300/>
-</p>
-<p align="center">Table x.x: Cross-validation results for different values of k</p>
+<p align="center">Figure 5.2: ROC values at different k neighbours</p>
+
+However, 17-NN does not seem to meet the company’s goal regarding Sensitivity and Specificity according to Table 5.2. This is also true for other values of k, except for 5, 7, 9, and 11 in terms of Sensitivity.
+
+| k   | ROC         | Sen         | Spec        |
+| --- | ----------- | ----------- | ----------- |
+| 5   | 0.9657098   | 0.9010711   | 0.9365571   |
+| 7   | 0.9695745   | 0.9021863   | 0.9357854   |
+| 9   | 0.9711099   | 0.9011803   | 0.9349276   |
+| 11  | 0.9715204   | 0.9008447   | 0.9353561   |
+| 13  | 0.9721018   | 0.8989447   | 0.9331253   |
+| 15  | 0.9722055   | 0.8986102   | 0.9326087   |
+| 17  | 0.9723954   | 0.8969342   | 0.9296036   |
+| 19  | 0.972067    | 0.8941386   | 0.9292615   |
+| 21  | 0.9716033   | 0.8912321   | 0.9275433   |
+| 23  | 0.9717416   | 0.8915681   | 0.9272851   |
+
+Table 5.2: Cross-validation results for different values of k
 
 ### Tree-Based
 In the development of Tree-based models, Decision Tree, Bagging, and Random Forest (RF) have been attempted. However, due to its lower accuracy and lack of robustness by nature (James et al., 2021), the details of the Decision Tree model are not discussed in this report.
@@ -645,16 +703,21 @@ DTBagTrain <- train(satisfaction~., data=airlineScaled[trainSet,],method="treeba
 set.seed(41)
 RFTrain <- train(satisfaction~., data=airlineScaled[trainSet,],method="rf",trControl=TrainControl,metric="ROC")
 ```
-<p align="center">
-  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/baggingtrain.png" alt="Bagging train" width=300/>
-</p>
-<p align="center">Table x.x: Bagging’s resampling results</p>
 
-<p align="center">
-  <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RFtrain.png" alt="RF train" width=300/>
-</p>
-<p align="center">Table x.x: RF’s resampling results across tuning parameters</p>
+| ROC         | Sen         | Spec        |
+| ----------- | ----------- | ----------- |
+| 0.9844468   | 0.9274502   | 0.9529528   |
 
+Table 5.3: Bagging’s resampling results
+
+
+| mtry   | ROC         | Sen         | Spec        |
+| --- | ----------- | ----------- | ----------- |
+| 2   | 0.9766876   | 0.8807221   | 0.9640317   |
+| 30   | 0.9903344   | 0.9333752   | 0.9668617   |
+| 59   | 0.9875409   | 0.9320337   | 0.9557843   |
+
+Table 5.4: RF’s resampling results across tuning parameters
 
 ## Performance Evaluation
 For finding the model that most accurately predicts customer satisfaction for the company, the above-mentioned models are then evaluated and compared based on their performances on the same test set.
@@ -709,7 +772,7 @@ draw_confusion_matrix <- function(cm,title) {
 }
 ```
 
-In terms of the two Logistic regression models, their performances appear to be highly similar as there are only minuscule differences across the measures such as Accuracy and Phi (Figures 2.1 and 2.2). However, neither model meets the company’s target for Specificity at the 0.5 threshold. To have the Specificity of 95% while keeping the Sensitivity of at least 90%, the threshold needs to be around 0.51 for the LASSO model and 0.52 for the Sink model according to their ROC curves (Figure 2.7). Despite this, Logit models are still less attractive compared to the other classifiers due to their inherent linear decision boundary in contrast with the more flexible decision boundaries of the other models as demonstrated in Figure 2.3.
+In terms of the two Logistic regression models, their performances appear to be highly similar as there are only minuscule differences across the measures such as Accuracy and Phi (Figures 6.1 and 6.2). However, neither model meets the company’s target for Specificity at the 0.5 threshold. To have the Specificity of 95% while keeping the Sensitivity of at least 90%, the threshold needs to be around 0.51 for the LASSO model and 0.52 for the Sink model according to their ROC curves (Figure 6.7). Despite this, Logit models are still less attractive compared to the other classifiers due to their inherent linear decision boundary in contrast with the more flexible decision boundaries of the other models as demonstrated in Figure 6.3.
 ```
 LASSOlogit <- predict(lasso.fit,s = lasso.bestlam,newx = as.matrix(airlineScaled[testSet,-1]),type="response")
 # Threshold
@@ -723,7 +786,7 @@ draw_confusion_matrix(lacm, "lasso logit")
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/lassologit.cm.png" alt="lasso logit cm" width=600/>
 </p>
-<p align="center">Figure 2.1: LASSO Logit Model’s Confusion Matrix at 0.5 threshold</p>
+<p align="center">Figure 6.1: LASSO Logit Model’s Confusion Matrix at 0.5 threshold</p>
 
 ```
 SINKlogit <- glm(satisfaction ~ ., 
@@ -738,7 +801,7 @@ draw_confusion_matrix(sicm, "sink logit")
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/sinklogit.cm.png" alt="sink logit cm" width=600/>
 </p>
-<p align="center">Figure 2.2: Sink Logit Model’s Confusion Matrix at 0.5 threshold</p>
+<p align="center">Figure 6.2: Sink Logit Model’s Confusion Matrix at 0.5 threshold</p>
 
 ```
 airlineScaled_wMDS <- cbind(airlineScaled, allMDS)
@@ -776,9 +839,9 @@ plot.thresholds(BagPredictz, airlineScaled_wMDS, thresholdValues)
         <td><img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RFthresholds.wActuals.png" alt="3"></td>
     </tr>
   </table>
-<p align="center">Figure 2.3: Data (after MDS) split based on 17-NN (upper left); RF (upper right) & RF with black ‘satisfied’ points added (bottom left)</p>
+<p align="center">Figure 6.3: Data (after MDS) split based on 17-NN (upper left); RF (upper right) & RF with black ‘satisfied’ points added (bottom left)</p>
 
-On the other hand, the 17-NN model seems to be the least promising as it does not meet the airline’s targets at any threshold level based on the ROC plot (Figure 2.7). It also has the weakest expected predictive performance across different measures derived from the confusion matrix (Figure 2.4).
+On the other hand, the 17-NN model seems to be the least promising as it does not meet the airline’s targets at any threshold level based on the ROC plot (Figure 6.7). It also has the weakest expected predictive performance across different measures derived from the confusion matrix (Figure 6.4).
 ```
 knnModelPredict <- predict(knnTrain, newdata=airlineScaled[testSet,],type="raw")
 knnModelPredictProb <- predict(knnTrain, newdata=airlineScaled[testSet,],type="prob")
@@ -789,7 +852,7 @@ draw_confusion_matrix(knncm, "17-NN")
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/17nn.cm.png" alt="knn cm" width=600/>
 </p>
-<p align="center">Figure 2.4: 17-NN’s Confusion Matrix at 0.5 threshold</p>
+<p align="center">Figure 6.4: 17-NN’s Confusion Matrix at 0.5 threshold</p>
 
 Notably, the best models come from the Tree-based method, with the clear winner being RF. As observed in Figures 2.5 and 2.6, Bagging and RF predicted the outcomes accurately for around 94.4% and 95.4% of the times respectively. Among the presented models, these two’s corresponding Phi values of 0.887 and 0.907 demonstrate the highest associations between the predicted and actual values. The proportions of satisfied customers that are correctly predicted out of all ‘positive’ predictions (Precision) are the largest for these models as well. Most importantly, Bagging and RF both meet the airline’s goal regarding Sensitivity and Specificity at the 0.5 threshold level, although the latter model is slightly better.
 ```
@@ -801,7 +864,7 @@ draw_confusion_matrix(bgcm, "bagging")
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/bagging.cm.png" alt="bagging cm" width=600/>
 </p>
-<p align="center">Figure 2.5: Bagging’s Confusion Matrix at 0.5 threshold</p>
+<p align="center">Figure 6.5: Bagging’s Confusion Matrix at 0.5 threshold</p>
 
 ```
 #RF model's confusion matrix
@@ -817,10 +880,10 @@ draw_confusion_matrix(rfcm, "Random Forest")
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RF.cm.png" alt="RF cm" width=600/>
 </p>
-<p align="center">Figure 2.6: RF’s Confusion Matrix at 0.5 threshold (mtry=30)</p>
+<p align="center">Figure 6.6: RF’s Confusion Matrix at 0.5 threshold (mtry=30)</p>
 
 ### TPR and TNR Trade-off
-The candidate models are then compared in the context of the trade-off between True Positive and True Negative Rates, with greater emphasis on the most promising model RF. The ROC curves of each model, which visualise the trade-off, are displayed in Figure 2.7. It is observed that as the threshold increases, the proportions of correctly identified dissatisfied customers for all models also increase, while the opposite is true for the proportions of correctly identified satisfied customers. In terms of AUC, the Tree-based approaches outperform all other models, showing strong class discrimination ability.
+The candidate models are then compared in the context of the trade-off between True Positive and True Negative Rates, with greater emphasis on the most promising model RF. The ROC curves of each model, which visualise the trade-off, are displayed in Figure 6.7. It is observed that as the threshold increases, the proportions of correctly identified dissatisfied customers for all models also increase, while the opposite is true for the proportions of correctly identified satisfied customers. In terms of AUC, the Tree-based approaches outperform all other models, showing strong class discrimination ability.
 ```
 rocCurves <- vector("list", 5)
 # We only need the second column for the purposes of the analysis
@@ -841,9 +904,9 @@ for(i in 1:5){
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/ROCcurves.ofall.png" alt="ROC curves" width=800/>
 </p>
-<p align="center">Figure 2.7: ROC curves of all candidate models</p>
+<p align="center">Figure 6.7: ROC curves of all candidate models</p>
 
-Considering that the company’s specific targets for Sensitivity and Specificity are at least 90% and 95% respectively, the ideal threshold range that can achieve these for RF is around 0.43 and 0.62, which is approximately the area highlighted green in Figure 2.8. If the goal was to prioritise Specificity, then the upper thresholds would be preferred. Conversely, the lower thresholds would be better if the goal was only to maximise Sensitivity. However, overall performance should always be taken into consideration. This can be reflected in measures like Accuracy & Phi coefficients and these are maximised when the threshold is around 0.5 for RF (Table 2.1).
+Considering that the company’s specific targets for Sensitivity and Specificity are at least 90% and 95% respectively, the ideal threshold range that can achieve these for RF is around 0.43 and 0.62, which is approximately the area highlighted green in Figure 6.8. If the goal was to prioritise Specificity, then the upper thresholds would be preferred. Conversely, the lower thresholds would be better if the goal was only to maximise Sensitivity. However, overall performance should always be taken into consideration. This can be reflected in measures like Accuracy & Phi coefficients and these are maximised when the threshold is around 0.5 for RF (Figure 6.9).
 ```
 rocObj <- roc(airlineScaled$satisfaction[testSet] ~ RFPredictProb[,2])
 roc_df <- data.frame(spec = rocObj$specificities, sen = rocObj$sensitivities, threshold = rocObj$thresholds)
@@ -860,7 +923,7 @@ ggplot(roc_df, aes(x = spec, y = sen)) +
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RF.ROCcurve.png" alt="RF ROC" width=600/>
 </p>
-<p align="center">Figure 2.8: ROC curve of RF</p>
+<p align="center">Figure 6.8: ROC curve of RF</p>
 
 ```
 #Define threshold levels
@@ -903,21 +966,21 @@ print(result_table)
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RFmetrics.diffthres.png" alt="RF performance" width=400/>
 </p>
-<p align="center">Table 2.1: Performance measures of RF at different thresholds</p>
+<p align="center">Figure 6.9: Performance measures of RF at different thresholds</p>
 
 Given its better expected overall performance, RF is chosen to be the final recommended model.
 
 ### Variable Importance
-The relative mean Gini index decrease for each variable in the dataset used to train RF is plotted in Figure 3.1. Based on its perfect Importance score, Business class is by far the most influential in predicting satisfaction. This aligns with the analysis in Part 1 as customers traveling in the airline’s Business class tend to have a more enjoyable flying experience. High ratings of services such as Inflight WIFI, Online boarding and Inflight entertainment, and Personal travel type along with Loyal customer type are other key predictors of satisfaction according to their relative importance values. From the plot, it is argued that Arrival delay, Inflight service, Onboard service, Baggage handling, Ease of online booking, Leg room service, Checkin service, Gate location, Cleanliness and Food & drink are the least important variables sets.
+The relative mean Gini index decrease for each variable in the dataset used to train RF is plotted in Figure 7.1. Based on its perfect Importance score, Business class is by far the most influential in predicting satisfaction. This aligns with the analysis in Part 1 as customers traveling in the airline’s Business class tend to have a more enjoyable flying experience. High ratings of services such as Inflight WIFI, Online boarding and Inflight entertainment, and Personal travel type along with Loyal customer type are other key predictors of satisfaction according to their relative importance values. From the plot, it is argued that Arrival delay, Inflight service, Onboard service, Baggage handling, Ease of online booking, Leg room service, Checkin service, Gate location, Cleanliness and Food & drink are the least important variables sets.
 
-It is then decided to retrain the RF model after removing these less important variables from the dataset to see whether they truly have minimal impact on the predictive performance of the model. Another reason for having fewer variables is to reduce model complexity and computational requirement. This new model is trained on the data with 22 predictors. The final number of variables tried at each split that maximises ROC is 12. Figure 3.2 presents the confusion matrix of the new RF model at the 0.5 threshold level. Notably, this model still meets the company’s requirements regarding Specificity and Sensitivity. In addition, the model’s level of accuracy and agreement between predicted vs. actual values are relatively high, indicating a sufficiently good classifier.
+It is then decided to retrain the RF model after removing these less important variables from the dataset to see whether they truly have minimal impact on the predictive performance of the model. Another reason for having fewer variables is to reduce model complexity and computational requirement. This new model is trained on the data with 22 predictors. The final number of variables tried at each split that maximises ROC is 12. Figure 7.2 presents the confusion matrix of the new RF model at the 0.5 threshold level. Notably, this model still meets the company’s requirements regarding Specificity and Sensitivity. In addition, the model’s level of accuracy and agreement between predicted vs. actual values are relatively high, indicating a sufficiently good classifier.
 ```
 varImp(RFTrain) |> plot()
 ```
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/RF.varimp.png" alt="Varimp" width=700/>
 </p>
-<p align="center">Figure 3.1: Variable importance from RF</p>
+<p align="center">Figure 7.1: Variable importance from RF</p>
 
 ```
 #Retrain RF model now with only high importance variables
@@ -939,7 +1002,7 @@ draw_confusion_matrix(rfcm.new, "(mtry=12) Random forest")
 <p align="center">
   <img src="https://github.com/dieu-nguyen24/UKAirline-Predictions/blob/main/Images/mtry12.rfcm.png" alt="RF mtry12" width=600/>
 </p>
-<p align="center">Figure 3.2: RF’s Confusion Matrix with mtry = 12</p>
+<p align="center">Figure 7.2: RF’s Confusion Matrix with mtry = 12</p>
 
 ### Conclusions
 - RF has consistently proven to be the most suitable predictive model among four other prospective approaches to help the airline predict customer satisfaction based on available data. Specifically, RF satisfies the required Specificity and Sensitivity of at least 95% and 90% respectively when the classification threshold is around 0.43 to 0.62.
