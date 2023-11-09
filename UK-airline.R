@@ -26,7 +26,7 @@ library(pROC)
 library(randomForest)
 
 
-setwd("/Users/fishsaucenguyen/Library/Mobile Documents/com~apple~CloudDocs/CW2/CW1")
+setwd("...") #Set working directory
 source("Rfunctions.R")
 airlinesData68 <- read_csv("airlinesData68.csv")
 
